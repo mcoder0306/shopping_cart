@@ -75,7 +75,9 @@ const deletProductFromCart = async (data) => {
     if (!mongoose.Types.ObjectId.isValid(data.productId)) {
         return { status: 400, message: "invalid id!!" }
     }
-    const cartId = await Cart.findOne({ user: data.userId })
+    const cartId = await Cart.findOne(
+        { $and: [{ user: data.userId }, { orderStatus: "draft" }] }
+    )
     const cart = await Cart.findByIdAndUpdate(
         cartId._id,
         {
@@ -163,7 +165,7 @@ const mergeGuestCart = async (data) => {
 }
 
 const updateCart = async (data) => {
-    const { paymentMethod, paymentStatus, orderStatus, lat, lng } = data.body;
+    const { paymentMethod, paymentStatus, orderStatus, lat, lng, total } = data.body;
     const cart = await Cart.findOne({
         $and: [
             { user: new mongoose.Types.ObjectId(data.userId) },
@@ -203,6 +205,7 @@ const updateCart = async (data) => {
         lat,
         lng
     };
+    cart.total = total
     await cart.save({ validateBeforeSave: false })
 
     return { status: 200, message: "cart", cart: cart }
@@ -217,10 +220,12 @@ const getCords = async ({ orderId }) => {
         return { status: 404, message: "order not found!!" }
     }
 
-    return { status: 200, message: "cords", cords: {
-    sourceCords: order.sourceCords,
-    destinationCords: order.destinationCords
-  } }
+    return {
+        status: 200, message: "cords", cords: {
+            sourceCords: order.sourceCords,
+            destinationCords: order.destinationCords
+        }
+    }
 
 }
 

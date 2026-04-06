@@ -20,7 +20,14 @@ app.use(cors({
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static("uploads"))
 app.use(cookieParser())
-connection()
+const connect = async () => {
+    await connection()
+    
+    app.listen(PORT, () => {
+        console.log("server is listening on PORT: ", PORT)
+    })
+}
+connect()
 
 //routes
 import userRouter from "./routes/user.route.js"
@@ -49,6 +56,3 @@ app.use("/api/v1/favourites", favouriteRouter)
 app.use("/api/v1/payment", paymentRouter)
 
 
-app.listen(PORT, () => {
-    console.log("server is listening on PORT: ", PORT)
-})

@@ -81,7 +81,6 @@ function Checkout() {
                             card: elements.getElement(CardElement),
                         },
                     });
-
                     if (result.error) {
                         toast.error(result.error.message);
                         setLoading(false);

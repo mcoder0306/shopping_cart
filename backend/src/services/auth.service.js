@@ -67,7 +67,7 @@ const loginUser = async (data) => {
     const verifyPassword = await bcrypt.compare(password, user.password);
 
     if (!verifyPassword) {
-        return { status: 401, message: "invalid password!!" }
+        return { status: 400, message: "invalid password!!" }
     }
 
     const { accessToken, refreshToken } = generateTokens(user)

@@ -25,10 +25,11 @@ const cartSchema = new Schema({
     },
     paymentMethod: {
         type: String,
+        enum: ["upi", "card", "cod"]
     },
     paymentStatus: {
         type: String,
-        enum: ["pending","cancelled","failed","completed"]
+        enum: ["pending", "cancelled", "failed", "completed"]
     },
     orderStatus: {
         type: String,

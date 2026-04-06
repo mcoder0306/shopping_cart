@@ -37,6 +37,7 @@ const handleWebhook = async (req, res) => {
             console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
 
             const cartId = paymentIntent.metadata.cartId;
+            console.log(cartId)
             if (cartId) {
                 try {
                     await Cart.findByIdAndUpdate(cartId, {
@@ -60,3 +61,7 @@ const handleWebhook = async (req, res) => {
 }
 
 export { createpaymetIntent, handleWebhook }
+
+// stripe login
+// stripe listen --forward-to localhost:3000/api/v1/payment/webhook
+//  stripe trigger payment_intent.succeeded

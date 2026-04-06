@@ -16,10 +16,10 @@ function Card({ product, favourites }) {
     const [wishlisted, setWishlisted] = useState(false);
     const HandleRemovePopUp = () => setOpenPopup(null);
     const user = useSelector(state => state.auth.user)
-
+    const isLoggedin = useSelector(state => state.auth.isLoggedin)
     const rating = (product.rating?.rate || 4.2).toFixed(1);
     const ratingCount = product.rating?.count || 120;
-
+    const [cartItemsinDb, setCartItemsinDb] = useState([])
     const handleFavourite = async () => {
         try {
             const res = await api.post(`/favourites/addTofavourite/${product?._id}`)
@@ -55,7 +55,7 @@ function Card({ product, favourites }) {
                     price: product.price
                 })
                 if (res.status === 201 || res.status === 200) {
-                    dispatch(addTocart({ product: product._id, qty: 1, price: product.price }))
+                    // dispatch(addTocart({ product: product._id, qty: 1, price: product.price }))
                     toast.success(res.data.data.message || 'Product added to cart! 🎉', {
                         theme: 'dark',
                         autoClose: 2500,
@@ -77,19 +77,27 @@ function Card({ product, favourites }) {
     }
     const handleDecreaseQty = async () => {
         try {
-            const res = await api.post(`/carts/addToCart/${product._id}`, {
-                qty: existing.qty - 1,
-                price: product.price
-            })
-            if (res.status === 200 || res.status === 201) {
+            if (!user) {
                 dispatch(decreaceQty({ product: product._id }))
                 if (existing.qty === 1) {
                     dispatch(removeFromCart({ product: product._id }))
                 }
-            } else {
-                toast.warning(res.data.data.message || 'Something went wrong', {
-                    theme: 'dark',
+            }
+            else {
+                const res = await api.post(`/carts/addToCart/${product._id}`, {
+                    qty: existing.qty - 1,
+                    price: product.price
                 })
+                if (res.status === 200 || res.status === 201) {
+                    // dispatch(decreaceQty({ product: product._id }))
+                    if (existing.qty === 1) {
+                        dispatch(removeFromCart({ product: product._id }))
+                    }
+                } else {
+                    toast.warning(res.data.data.message || 'Something went wrong', {
+                        theme: 'dark',
+                    })
+                }
             }
 
         } catch (error) {
@@ -103,16 +111,21 @@ function Card({ product, favourites }) {
 
     const handleIncreaseQty = async () => {
         try {
-            const res = await api.post(`/carts/addToCart/${product._id}`, {
-                qty: existing.qty + 1,
-                price: product.price
-            })
-            if (res.status === 200 || res.status === 201) {
+            if (!user) {
                 dispatch(increaceQty({ product: product._id }))
-            } else {
-                toast.warning(res.data.data.message || 'Something went wrong', {
-                    theme: 'dark',
+            }
+            else {
+                const res = await api.post(`/carts/addToCart/${product._id}`, {
+                    qty: existing.qty + 1,
+                    price: product.price
                 })
+                if (res.status === 200 || res.status === 201) {
+                    // dispatch(increaceQty({ product: product._id }))
+                } else {
+                    toast.warning(res.data.data.message || 'Something went wrong', {
+                        theme: 'dark',
+                    })
+                }
             }
         } catch (error) {
             const msg = error.response?.data?.message || 'something went wrong. Please try again.'
@@ -132,6 +145,24 @@ function Card({ product, favourites }) {
         }
         checkFavourites()
     }, [favourites, product._id])
+
+    useEffect(() => {
+        const loadCartItems = async () => {
+            const res = await api.get(`/carts/getCart/draft`)
+            if (res.status === 200) {
+                setCartItemsinDb(res.data.data.items || [])
+            }
+            else {
+                toast.error(res.data.message, {
+                    theme: 'dark',
+                    autoClose: 3000,
+                })
+            }
+        }
+        if (isLoggedin) {
+            loadCartItems()
+        }
+    }, [isLoggedin])
     return (
         <div className='glass-hover rounded-3xl p-5 h-full flex flex-col glass border border-white/05 relative group product-card'>
             {/* Action Buttons */}
@@ -198,7 +229,7 @@ function Card({ product, favourites }) {
                                             <FontAwesomeIcon icon={faMinus} />
                                         </button>
                                         <span className='w-5 text-center font-black text-sm'>{existing.qty}</span>
-                                        <button onClick={handleIncreaseQty} className='qty-btn' disabled={existing.qty >= product.stock}>
+                                        <button onClick={handleIncreaseQty} className='qty-btn disabled:cursor-not-allowed' disabled={existing.qty >= product.stock}>
                                             <FontAwesomeIcon icon={faPlus} />
                                         </button>
                                     </div>

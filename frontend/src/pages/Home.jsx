@@ -11,8 +11,10 @@ import { toast } from 'react-toastify';
 
 function Home() {
   const products = useSelector(state => state.product.products)
+  const isLoggedin = useSelector(state => state.auth.isLoggedin)
   const dispatch = useDispatch();
   const [favourites, setFavourites] = useState([])
+
   const categories = [...new Set(products?.map(product => product.category?.title).filter(Boolean))]
   const featuredProducts = products?.slice(0, 4);
 
@@ -51,8 +53,11 @@ function Home() {
         })
       }
     }
-    fetchFavourites()
-  }, [])
+    if (isLoggedin) {
+      fetchFavourites()
+    }
+  }, [isLoggedin])
+
 
   const trustItems = [
     { icon: faTruck, title: 'Free Shipping', desc: 'On all orders over $50' },

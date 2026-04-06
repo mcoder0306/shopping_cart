@@ -21,7 +21,8 @@ const addToCart = async (req, res) => {
 
 const deleteFromCart = async (req, res) => {
     try {
-        const { productId, userId } = req.params
+        const { productId } = req.params
+        const userId=req?.userId
         const response = await deletProductFromCart({ productId: productId, userId: userId })
         if (response.status === 200) {
             return successResponse(res, response.status, response.message, response.cart)
@@ -36,7 +37,7 @@ const deleteFromCart = async (req, res) => {
 
 const getCart = async (req, res) => {
     try {
-        const userId = req.userId;
+        const userId = req?.userId;
         const { status } = req.params;
         const response = await getUserCart({ userId: userId, status: status })
         if (response.status === 200) {
@@ -53,7 +54,7 @@ const getCart = async (req, res) => {
 const mergeCart = async (req, res) => {
     try {
         const { items } = req.body;
-        const userId = req.userId;
+        const userId = req?.userId;
         const response = await mergeGuestCart({ items: items, userId: userId })
         if (response.status === 200 || response.status === 201) {
             return successResponse(res, response.status, response.message, response.cart)

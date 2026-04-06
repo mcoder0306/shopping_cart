@@ -29,6 +29,12 @@ api.interceptors.response.use(
         if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
+            // Check if user is supposed to be logged in (via localStorage)
+            const user = JSON.parse(localStorage.getItem("user"));
+            if (!user) {
+                return Promise.reject(error);
+            }
+
             try {
                 // Attempt to refresh the token
                 await axios.post(
@@ -37,13 +43,16 @@ api.interceptors.response.use(
                     { withCredentials: true }
                 );
 
-                // If successful, retry the original request with the new token (handled by cookies)
+                // If successful, retry the original request
                 return api(originalRequest);
             } catch (refreshError) {
+                // If refresh fails, you might want to logout the user or clear storage
+                // but for now, just reject to avoid infinite loops or confusing errors
                 return Promise.reject(refreshError);
             }
         }
 
         return Promise.reject(error);
     }
+
 );

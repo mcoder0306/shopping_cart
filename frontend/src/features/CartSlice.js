@@ -21,7 +21,7 @@ export const cartSlice = createSlice({
     reducers: {
         addTocart: (state, action) => {
             const copy = current(state.cartItems)
-            const productId = action.payload.product?._id || action.payload.product
+            const productId = action.payload.product
             const existing = copy.find((item) => (item.product?._id || item.product) === productId)
             if (existing) {
                 const updated = state.cartItems.map((item) => (item.product?._id || item.product) === productId ? { ...item, qty: item.qty + 1 } : item)

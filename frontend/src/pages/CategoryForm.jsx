@@ -45,7 +45,7 @@ function CategoryForm({ popup, setPopup }) {
     }, [])
     return (
         <div className='glass rounded-3xl p-8 md:p-10 border border-white/05 animate-slide-up'>
-            <h1 className='text-2xl text-gray-300 text-center p-3 m-2'>{popup.data ? "Edite" : "Add"} Category</h1>
+            <h1 className='text-2xl text-gray-300 text-center p-3 m-2'>{popup.data ? "Edit" : "Add"} Category</h1>
             <form onSubmit={handleSubmit(submitHandler)} className='flex flex-col gap-6'>
 
                 {/* Title Field */}

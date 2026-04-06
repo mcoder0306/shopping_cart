@@ -24,6 +24,8 @@ function Navbar() {
   const [searchValue, setSearchValue] = useState("")
   const [openUserMenu, setOpenUserMenu] = useState(false)
   const userMenuRef = useRef(null)
+  const [cartItems,setCartItems]=useState([])
+  const cartItemsCount=isLoggedin?cartItems.length:cartCount
 
   const handleLogout = async () => {
     try {
@@ -59,7 +61,6 @@ function Navbar() {
     const loadCart = async () => {
       try {
         const localData = JSON.parse(localStorage.getItem("cart"))
-
         if (isLoggedin) {
           // If logged in, prioritize server cart and merge if local data exists
           if (localData && localData.length > 0) {
@@ -73,7 +74,7 @@ function Navbar() {
 
           const res = await api.get(`/carts/getCart/draft`)
           if (res.status === 200) {
-            dispatch(setCart(res.data.data.items || []))
+            setCartItems(res.data.data.items || [])
           }
           else {
             toast.error(res.data.message, {
@@ -95,7 +96,7 @@ function Navbar() {
       }
     }
     loadCart()
-  }, [isLoggedin, dispatch])
+  }, [isLoggedin, dispatch,cartItems])
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 30);
@@ -116,8 +117,11 @@ function Navbar() {
       }
     }
 
-    fetchUser()
-  }, [])
+    if (isLoggedin) {
+      fetchUser()
+    }
+  }, [isLoggedin, dispatch])
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -187,9 +191,9 @@ function Navbar() {
               className='relative p-2.5 hover:bg-white/5 rounded-xl transition-colors group'
             >
               <FontAwesomeIcon icon={faShoppingCart} className='text-lg text-slate-300 group-hover:text-white transition-colors' />
-              {cartCount > 0 && (
+              {cartItemsCount > 0 && (
                 <span className='absolute -top-1 -right-1 bg-indigo-500 text-white rounded-full min-w-[20px] h-5 flex items-center justify-center text-[10px] font-black shadow-lg shadow-indigo-500/40 animate-bounce-in'>
-                  {cartCount}
+                  {cartItemsCount}
                 </span>
               )}
             </button>
@@ -267,7 +271,7 @@ function Navbar() {
 
         {/* Cart Sidebar */}
         <PopUp openPopUp={openPopup === "cartpopup"} closePopUp={HandleRemovePopUp} id="cartpopup" className="justify-end" innerClass="w-full md:w-[460px] h-full mr-0 glass rounded-l-3xl shadow-2xl">
-          <Cart cartItems={cart} closePopUp={HandleRemovePopUp} />
+          <Cart cartItems={isLoggedin?cartItems:cart} closePopUp={HandleRemovePopUp} />
         </PopUp>
       </nav>
     </div>

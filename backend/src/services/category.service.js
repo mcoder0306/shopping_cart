@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { Category } from "../models/category.model.js";
 import { Product } from "../models/product.model.js";
 
-const addCat = async (data) => {
+const categorAdd = async (data) => {
     const { title } = data;
     if (!title) {
         return { status: 422, message: "category name is required!!" }
@@ -21,7 +21,7 @@ const addCat = async (data) => {
     return { status: 201, message: "category added successfully", category: category }
 }
 
-const updateCat = async (data) => {
+const categoryUpdate = async (data) => {
     let updateData = {}
     const allowedFields = ["title", "isActive"];
 
@@ -51,7 +51,7 @@ const updateCat = async (data) => {
     return { status: 200, message: "category updated successfully", category: category }
 }
 
-const deleteCat = async (id) => {
+const categoryDelete = async (id) => {
     if (!mongoose.Types.ObjectId.isValid(id)) {
         return { status: 422, message: "invalid id!!" }
     }
@@ -63,7 +63,7 @@ const deleteCat = async (id) => {
     return { status: 200, message: "category deleted successfully", category: deletedcat }
 }
 
-const getCats = async (data) => {
+const categoryGet = async (data) => {
     const { id } = data
     const filter = {}
     if (id) {
@@ -77,4 +77,4 @@ const getCats = async (data) => {
     return { status: 200, message: "categories", categories: categories }
 }
 
-export { addCat, updateCat, deleteCat, getCats }
+export { categorAdd, categoryDelete, categoryUpdate, categoryGet }

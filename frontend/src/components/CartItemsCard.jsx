@@ -80,7 +80,7 @@ function CartItemsCard({ item, cartItems }) {
                 dispatch(removeFromCart({ product: id }))
             }
             else {
-                const res = await api.delete(`/carts/deleteFromCart/${id}/${user._id}`)
+                const res = await api.delete(`/carts/deleteFromCart/${id}`)
                 if (res.status === 200 || res.status === 201) {
                     dispatch(removeFromCart({ product: id }))
                     toast.success(res.data.message || 'Product removed from cart! 🎉', {
@@ -133,7 +133,8 @@ function CartItemsCard({ item, cartItems }) {
                             <span className='w-5 text-center font-black text-xs'>{qty}</span>
                             <button
                                 onClick={() => handleIncreaseQty(item._id)}
-                                className='qty-btn'
+                                className='qty-btn disabled:cursor-not-allowed'
+                                disabled={qty >= item.stock}
                             >
                                 <FontAwesomeIcon icon={faPlus} />
                             </button>

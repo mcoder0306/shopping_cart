@@ -1,9 +1,9 @@
-import { addCat, deleteCat, getCats, updateCat } from "../services/category.service.js";
+import { categorAdd, categoryUpdate, categoryDelete, categoryGet } from "../services/category.service.js";
 import { errorResponse, successResponse } from "../utils/response.js";
 
 const addCategory = async (req, res) => {
     try {
-        const response = await addCat(req.body)
+        const response = await categorAdd(req.body)
         if (response.status === 201) {
             return successResponse(res, response.status, response.message, response.category)
         }
@@ -19,7 +19,7 @@ const addCategory = async (req, res) => {
 const updateCategory = async (req, res) => {
     try {
         const { id } = req.params;
-        const response = await updateCat({ id: id, body: req.body })
+        const response = await categoryUpdate({ id: id, body: req.body })
         if (response.status === 200) {
             return successResponse(res, response.status, response.message, response.category)
         }
@@ -34,7 +34,7 @@ const updateCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
     const { id } = req.params;
     try {
-        const response = await deleteCat(id)
+        const response = await categoryDelete(id)
         if (response.status === 200) {
             return successResponse(res, response.status, response.message, response.category)
         }
@@ -48,7 +48,7 @@ const deleteCategory = async (req, res) => {
 
 const getAllCategories = async (req, res) => {
     try {
-        const response = await getCats(req.query)
+        const response = await categoryGet(req.query)
         if (response.status === 200) {
             return successResponse(res, response.status, response.message, response.categories)
         }
