@@ -62,6 +62,3 @@ const handleWebhook = async (req, res) => {
 
 export { createpaymetIntent, handleWebhook }
 
-// stripe login
-// stripe listen --forward-to localhost:3000/api/v1/payment/webhook
-//  stripe trigger payment_intent.succeeded

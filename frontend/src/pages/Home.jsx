@@ -8,12 +8,14 @@ import { faArrowRight, faTruck, faShieldHalved, faHeadset, faTag } from '@fortaw
 import { Link } from 'react-router';
 import { api } from '../utils/api';
 import { toast } from 'react-toastify';
+import { Oval } from 'react-loader-spinner';
 
 function Home() {
   const products = useSelector(state => state.product.products)
   const isLoggedin = useSelector(state => state.auth.isLoggedin)
   const dispatch = useDispatch();
   const [favourites, setFavourites] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const categories = [...new Set(products?.map(product => product.category?.title).filter(Boolean))]
   const featuredProducts = products?.slice(0, 4);
@@ -24,6 +26,7 @@ function Home() {
         const result = await api.get("/products/getProducts")
         if (result.status === 200) {
           dispatch(addProducts(result.data.data));
+          setIsLoading(false)
         }
       } catch (error) {
         const msg = error.response?.data?.message || "error in loadproducts!!"
@@ -66,9 +69,8 @@ function Home() {
     { icon: faTag, title: 'Best Prices', desc: 'Guaranteed price match' },
   ]
 
-  return (
+  return !isLoading ? (
     <div className='flex flex-col gap-20 pb-24'>
-
       {/* ── Hero ── */}
       <section className='relative pt-36 pb-28 px-6 overflow-hidden'>
         <div className='max-w-7xl mx-auto relative z-10'>
@@ -212,6 +214,25 @@ function Home() {
 
     </div>
   )
+    :
+    (
+      <div className="min-h-screen pt-32 pb-24 px-6 max-w-7xl mx-auto overflow-hidden">
+        <div className='flex justify-center'>
+          <Oval
+            height={100}
+            width={100}
+            color="#6a6ff2"
+            wrapperStyle={{}}
+            wrapperClass=""
+            visible={true}
+            ariaLabel='oval-loading'
+            secondaryColor="#6a6ff2"
+            strokeWidth={2}
+            strokeWidthSecondary={2}
+          />
+        </div>
+      </div>
+    )
 }
 
 export default Home

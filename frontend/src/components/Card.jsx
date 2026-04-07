@@ -10,16 +10,16 @@ import { api } from '../utils/api'
 
 function Card({ product, favourites }) {
     const dispatch = useDispatch()
-    const cartItems = useSelector(state => state.cart.cartItems)
-    const existing = cartItems.find(item => (item.product?._id || item.product) === product._id)
     const [openPopup, setOpenPopup] = useState(null);
     const [wishlisted, setWishlisted] = useState(false);
     const HandleRemovePopUp = () => setOpenPopup(null);
     const user = useSelector(state => state.auth.user)
     const isLoggedin = useSelector(state => state.auth.isLoggedin)
-    const rating = (product.rating?.rate || 4.2).toFixed(1);
-    const ratingCount = product.rating?.count || 120;
     const [cartItemsinDb, setCartItemsinDb] = useState([])
+    const cartItems = isLoggedin? cartItemsinDb : useSelector(state => state.cart.cartItems)
+     const existing = cartItems.find(item => (item.product?._id || item.product) === product._id)
+    // const rating = (product.rating?.rate || 4.2).toFixed(1);
+    // const ratingCount = product.rating?.count || 120;
     const handleFavourite = async () => {
         try {
             const res = await api.post(`/favourites/addTofavourite/${product?._id}`)
@@ -162,7 +162,7 @@ function Card({ product, favourites }) {
         if (isLoggedin) {
             loadCartItems()
         }
-    }, [isLoggedin])
+    }, [isLoggedin,cartItemsinDb])
     return (
         <div className='glass-hover rounded-3xl p-5 h-full flex flex-col glass border border-white/05 relative group product-card'>
             {/* Action Buttons */}
