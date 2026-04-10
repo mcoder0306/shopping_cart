@@ -96,12 +96,6 @@ function Home() {
                 Shop Now
                 <FontAwesomeIcon icon={faArrowRight} className='group-hover:translate-x-1.5 transition-transform' />
               </Link>
-              <Link
-                to='/category/electronics'
-                className='btn-ghost px-9 py-4 rounded-2xl font-bold text-lg'
-              >
-                View Collections
-              </Link>
             </div>
           </div>
         </div>
@@ -112,7 +106,7 @@ function Home() {
         <div className='absolute top-20 right-1/3 w-[200px] h-[200px] bg-violet-600/12 blur-[80px] rounded-full -z-10' />
 
         {/* Floating stat cards */}
-        <div className='hidden lg:flex absolute right-8 top-1/2 -translate-y-1/2 flex-col gap-4 animate-float'>
+        {/* <div className='hidden lg:flex absolute right-8 top-1/2 -translate-y-1/2 flex-col gap-4 animate-float'>
           <div className='glass rounded-2xl p-5 border border-white/08 min-w-[160px]'>
             <p className='text-3xl font-black text-gradient'>10K+</p>
             <p className='text-sm text-slate-400 mt-1'>Happy Customers</p>
@@ -125,7 +119,7 @@ function Home() {
             <p className='text-3xl font-black text-emerald-400'>Free</p>
             <p className='text-sm text-slate-400 mt-1'>Fast Shipping</p>
           </div>
-        </div>
+        </div> */}
       </section>
 
       {/* ── Trust Strip ── */}

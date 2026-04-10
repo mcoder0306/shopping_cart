@@ -37,7 +37,6 @@ const handleWebhook = async (req, res) => {
             console.log(`PaymentIntent for ${paymentIntent.amount} was successful!`);
 
             const cartId = paymentIntent.metadata.cartId;
-            console.log(cartId)
             if (cartId) {
                 try {
                     await Cart.findByIdAndUpdate(cartId, {

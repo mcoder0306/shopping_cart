@@ -10,6 +10,7 @@ import { logoutUser } from '../features/AuthSlice';
 import { toast } from 'react-toastify'
 import { setLoggedinUser } from '../features/AuthSlice';
 import { setCart } from '../features/CartSlice'
+import { fetchDraftCart } from '../store/cart/cartApi';
 
 function Navbar() {
   const [openPopup, setOpenPopup] = useState(null);
@@ -24,8 +25,8 @@ function Navbar() {
   const [searchValue, setSearchValue] = useState("")
   const [openUserMenu, setOpenUserMenu] = useState(false)
   const userMenuRef = useRef(null)
-  const [cartItems,setCartItems]=useState([])
-  const cartItemsCount=isLoggedin?cartItems.length:cartCount
+  const [cartItems, setCartItems] = useState([])
+  const cartItemsCount = isLoggedin ? cartItems.length : cartCount
 
   const handleLogout = async () => {
     try {
@@ -71,11 +72,13 @@ function Navbar() {
               return;
             }
           }
-
-          const res = await api.get(`/carts/getCart/draft`)
-          if (res.status === 200) {
-            setCartItems(res.data.data.items || [])
+          if (cartItems.length === 0) {
+            fetchDraftCart(dispatch)
           }
+          // const res = await api.get(`/carts/getCart/draft`)
+          // if (res.status === 200) {
+          //   setCartItems(res.data.data.items || [])
+          // }
           else {
             toast.error(res.data.message, {
               theme: 'dark',
@@ -96,7 +99,7 @@ function Navbar() {
       }
     }
     loadCart()
-  }, [isLoggedin, dispatch,cartItems])
+  }, [isLoggedin])
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 30);
@@ -271,7 +274,7 @@ function Navbar() {
 
         {/* Cart Sidebar */}
         <PopUp openPopUp={openPopup === "cartpopup"} closePopUp={HandleRemovePopUp} id="cartpopup" className="justify-end" innerClass="w-full md:w-[460px] h-full mr-0 glass rounded-l-3xl shadow-2xl">
-          <Cart cartItems={isLoggedin?cartItems:cart} closePopUp={HandleRemovePopUp} />
+          <Cart cartItems={isLoggedin ? cartItems : cart} closePopUp={HandleRemovePopUp} />
         </PopUp>
       </nav>
     </div>

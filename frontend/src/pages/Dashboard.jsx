@@ -99,7 +99,7 @@ function Dashboard() {
                 <div className="lg:col-span-8 glass border border-white/05 rounded-3xl overflow-hidden flex flex-col">
                     <div className="px-8 py-6 border-b border-white/05 flex items-center justify-between bg-white/02">
                         <h2 className="text-xl font-bold text-white text-left uppercase tracking-tight">Recent Orders</h2>
-                        <button onClick={() => setActiveTab('Orders')} className="text-indigo-400 text-xs font-black uppercase tracking-widest hover:text-indigo-300 transition-colors">Manage All</button>
+                        {/* <button onClick={() => setActiveTab('Orders')} className="text-indigo-400 text-xs font-black uppercase tracking-widest hover:text-indigo-300 transition-colors">Manage All</button> */}
                     </div>
                     <div className="overflow-x-auto">
                         <table className="w-full text-left font-medium">
@@ -149,7 +149,7 @@ function Dashboard() {
                     </div>
 
                     <div className="flex flex-col gap-4 flex-1">
-                        {products.filter(p => p.stock < 20).map((prod) => (
+                        {products.filter(p => p.stock < 10).map((prod) => (
                             <div key={prod._id} className="flex items-center gap-4 p-4 rounded-2xl bg-white/03 border border-white/05 hover:bg-white/05 transition-all group">
                                 <img src={`http://localhost:3000/${prod.image?.replace('uploads/', '')}`} className="w-10 h-10 rounded-lg object-cover" />
                                 <div className="flex-1 min-w-0">
@@ -220,7 +220,7 @@ function Dashboard() {
                                             {/* <button onClick={() => setPopup({ type: "detailView", data: product })} className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-indigo-600 transition-all flex items-center justify-center"><FontAwesomeIcon icon={faEye} className="text-xs" /></button> */}
                                             <button onClick={() => setPopup({ type: "addEditProduct", data: product._id })} className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-emerald-600 transition-all flex items-center justify-center"><FontAwesomeIcon icon={faEdit} className="text-xs" /></button>
 
-                                            <button onClick={() => setPopup({ type: "deletePopup", data: {product:product._id} })} className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-rose-600 transition-all flex items-center justify-center"><FontAwesomeIcon icon={faTrash} className="text-xs" /></button>
+                                            <button onClick={() => setPopup({ type: "deletePopup", data: { product: product._id } })} className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-rose-600 transition-all flex items-center justify-center"><FontAwesomeIcon icon={faTrash} className="text-xs" /></button>
                                         </div>
                                     </td>
                                 </tr>
@@ -268,7 +268,7 @@ function Dashboard() {
                             </div>
                             <div className="flex gap-2">
                                 <button onClick={() => setPopup({ type: "addEditCategory", data: cat._id })} className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-emerald-600 transition-all flex items-center justify-center"><FontAwesomeIcon icon={faEdit} className="text-xs" /></button>
-                                <button onClick={() => setPopup({ type: "deletePopup", data: {category:cat._id} })} className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-rose-600 transition-all flex items-center justify-center"><FontAwesomeIcon icon={faTrash} className="text-xs" /></button>
+                                <button onClick={() => setPopup({ type: "deletePopup", data: { category: cat._id } })} className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-rose-600 transition-all flex items-center justify-center"><FontAwesomeIcon icon={faTrash} className="text-xs" /></button>
                             </div>
                         </div>
                         <div className="flex items-center justify-between">

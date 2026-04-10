@@ -14,6 +14,7 @@ const count = loadLocal().length
 const initialState = {
     cartItems: loadLocal() || [],
     cartCount: count ? count : 0,
+    completedCart: []
 }
 export const cartSlice = createSlice({
     name: "cart",
@@ -60,10 +61,14 @@ export const cartSlice = createSlice({
         setCart: (state, action) => {
             state.cartItems = action.payload,
                 state.cartCount = action.payload.length
+            localStorage.setItem("cart", JSON.stringify(state.cartItems))
+        },
+        setCompletedCart: (state, action) => {
+            state.completedCart = action.payload
         }
 
     }
 })
 
-export const { addTocart, removeFromCart, clearCart, increaceQty, decreaceQty, setCart } = cartSlice.actions;
+export const { addTocart, removeFromCart, clearCart, increaceQty, decreaceQty, setCart, setCompletedCart } = cartSlice.actions;
 export default cartSlice.reducer;

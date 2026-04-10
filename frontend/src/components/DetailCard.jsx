@@ -138,8 +138,8 @@ function DetailCard({ product }) {
                 {/* Price */}
                 <div className='flex items-end gap-4'>
                     <span className='text-4xl font-black text-gradient'>${product.price}</span>
-                    {/* <span className='text-slate-500 line-through mb-1 text-lg'>${(product.price * 1.2).toFixed(2)}</span>
-                    <span className='badge badge-emerald mb-1'>20% OFF</span> */}
+                    <span className='text-slate-500 line-through mb-1 text-lg'>${(product.price * 1.2).toFixed(2)}</span>
+                    {/* <span className='badge badge-emerald mb-1'>20% OFF</span> */}
                 </div>
 
                 {/* Description */}

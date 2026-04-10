@@ -9,20 +9,22 @@ import { handleWebhook } from "./controllers/payment.controller.js"
 
 const app = express()
 
-// Webhook route must be before express.json() to get raw body
-app.post("/api/v1/payment/webhook", express.raw({ type: 'application/json' }), handleWebhook)
-
-app.use(express.json())
 app.use(cors({
     origin: "http://localhost:5173",
     credentials: true
 }))
+
+
+app.post("/api/v1/payment/webhook", express.raw({ type: 'application/json' }), handleWebhook)
+app.use(express.json())
+
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static("uploads"))
 app.use(cookieParser())
+
 const connect = async () => {
     await connection()
-    
+
     app.listen(PORT, () => {
         console.log("server is listening on PORT: ", PORT)
     })

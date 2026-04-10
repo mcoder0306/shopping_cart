@@ -162,7 +162,7 @@ function Card({ product, favourites }) {
         if (isLoggedin) {
             loadCartItems()
         }
-    }, [isLoggedin,cartItemsinDb])
+    }, [isLoggedin])
     return (
         <div className='glass-hover rounded-3xl p-5 h-full flex flex-col glass border border-white/05 relative group product-card'>
             {/* Action Buttons */}

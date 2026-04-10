@@ -41,7 +41,7 @@ function Cart({ cartItems, closePopUp }) {
       }
     }
     loadProducts()
-  }, [items])
+  }, [products])
 
 
   return (
