@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { addTocart, decreaceQty, increaceQty, removeFromCart } from '../features/CartSlice'
+import { addTocart, decreaceQty, increaceQty, removeFromCart, updateLocalStorage } from '../features/CartSlice'
 import { Bounce, toast } from 'react-toastify'
 import PopUp from './Popup'
 import DetailCard from './DetailCard'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faMinus, faInfoCircle, faStar, faHeart } from '@fortawesome/free-solid-svg-icons'
 import { api } from '../utils/api'
+import { fetchDraftCart } from '../store/cart/cartApi'
 
 function Card({ product, favourites }) {
     const dispatch = useDispatch()
@@ -15,11 +16,9 @@ function Card({ product, favourites }) {
     const HandleRemovePopUp = () => setOpenPopup(null);
     const user = useSelector(state => state.auth.user)
     const isLoggedin = useSelector(state => state.auth.isLoggedin)
-    const [cartItemsinDb, setCartItemsinDb] = useState([])
-    const cartItems = isLoggedin? cartItemsinDb : useSelector(state => state.cart.cartItems)
-     const existing = cartItems.find(item => (item.product?._id || item.product) === product._id)
-    // const rating = (product.rating?.rate || 4.2).toFixed(1);
-    // const ratingCount = product.rating?.count || 120;
+    const cartItems = useSelector(state => state.cart.cartItems)
+    const existing = cartItems.find(item => (item.product?._id || item.product) === product._id)
+
     const handleFavourite = async () => {
         try {
             const res = await api.post(`/favourites/addTofavourite/${product?._id}`)
@@ -38,7 +37,7 @@ function Card({ product, favourites }) {
                 })
             }
         } catch (error) {
-            toast.warning(res.data.message || 'Something went wrong', {
+            toast.warning('Something went wrong', {
                 theme: 'dark',
             })
         }
@@ -47,7 +46,12 @@ function Card({ product, favourites }) {
     const handleAddToCart = async () => {
         try {
             if (!user) {
-                dispatch(addTocart({ product: product._id, qty: 1, price: product.price }))
+                dispatch(addTocart({ product: product, qty: 1, price: product.price }))
+                dispatch(updateLocalStorage())
+                toast.success('Product added to bag! 🎉', {
+                    theme: 'dark',
+                    autoClose: 2500,
+                })
             }
             else {
                 const res = await api.post(`/carts/addToCart/${product._id}`, {
@@ -55,7 +59,7 @@ function Card({ product, favourites }) {
                     price: product.price
                 })
                 if (res.status === 201 || res.status === 200) {
-                    // dispatch(addTocart({ product: product._id, qty: 1, price: product.price }))
+                    fetchDraftCart(dispatch)
                     toast.success(res.data.data.message || 'Product added to cart! 🎉', {
                         theme: 'dark',
                         autoClose: 2500,
@@ -67,7 +71,7 @@ function Card({ product, favourites }) {
                 }
             }
         } catch (error) {
-            const msg = error.response?.data?.message || 'logout failed. Please try again.'
+            const msg = error.response?.data?.message || 'Action failed. Please try again.'
             toast.error(msg, {
                 theme: 'dark',
                 autoClose: 3000,
@@ -82,6 +86,7 @@ function Card({ product, favourites }) {
                 if (existing.qty === 1) {
                     dispatch(removeFromCart({ product: product._id }))
                 }
+                dispatch(updateLocalStorage())
             }
             else {
                 const res = await api.post(`/carts/addToCart/${product._id}`, {
@@ -89,7 +94,7 @@ function Card({ product, favourites }) {
                     price: product.price
                 })
                 if (res.status === 200 || res.status === 201) {
-                    // dispatch(decreaceQty({ product: product._id }))
+                    fetchDraftCart(dispatch)
                     if (existing.qty === 1) {
                         dispatch(removeFromCart({ product: product._id }))
                     }
@@ -113,6 +118,7 @@ function Card({ product, favourites }) {
         try {
             if (!user) {
                 dispatch(increaceQty({ product: product._id }))
+                dispatch(updateLocalStorage())
             }
             else {
                 const res = await api.post(`/carts/addToCart/${product._id}`, {
@@ -120,7 +126,7 @@ function Card({ product, favourites }) {
                     price: product.price
                 })
                 if (res.status === 200 || res.status === 201) {
-                    // dispatch(increaceQty({ product: product._id }))
+                    fetchDraftCart(dispatch)
                 } else {
                     toast.warning(res.data.data.message || 'Something went wrong', {
                         theme: 'dark',
@@ -147,22 +153,10 @@ function Card({ product, favourites }) {
     }, [favourites, product._id])
 
     useEffect(() => {
-        const loadCartItems = async () => {
-            const res = await api.get(`/carts/getCart/draft`)
-            if (res.status === 200) {
-                setCartItemsinDb(res.data.data.items || [])
-            }
-            else {
-                toast.error(res.data.message, {
-                    theme: 'dark',
-                    autoClose: 3000,
-                })
-            }
-        }
         if (isLoggedin) {
-            loadCartItems()
+            fetchDraftCart(dispatch)
         }
-    }, [isLoggedin])
+    }, [isLoggedin, dispatch])
     return (
         <div className='glass-hover rounded-3xl p-5 h-full flex flex-col glass border border-white/05 relative group product-card'>
             {/* Action Buttons */}
@@ -174,13 +168,18 @@ function Card({ product, favourites }) {
                 >
                     <FontAwesomeIcon icon={faInfoCircle} />
                 </button>
-                <button
-                    onClick={handleFavourite}
-                    className={`w-9 h-9 rounded-full glass border flex items-center justify-center transition-all text-sm ${wishlisted ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400' : 'border-white/10 text-slate-400 hover:text-indigo-400 hover:border-indigo-400/30'}`}
-                    title="Wishlist"
-                >
-                    <FontAwesomeIcon icon={faHeart} />
-                </button>
+                {
+                    isLoggedin && (
+                        <button
+                            onClick={handleFavourite}
+                            className={`w-9 h-9 rounded-full glass border flex items-center justify-center transition-all text-sm ${wishlisted ? 'bg-indigo-500/20 border-indigo-500/50 text-indigo-400' : 'border-white/10 text-slate-400 hover:text-indigo-400 hover:border-indigo-400/30'}`}
+                            title="Wishlist"
+                        >
+                            <FontAwesomeIcon icon={faHeart} />
+                        </button>
+
+                    )
+                }
             </div>
 
             {/* Image */}

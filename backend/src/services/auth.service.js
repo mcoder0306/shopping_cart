@@ -38,7 +38,6 @@ const registerUser = async (data) => {
         name,
         email,
         password: hashPass,
-        isAdmin: false
     })
     if (!user) {
         return { status: 500, message: "something went wrong in create user" }

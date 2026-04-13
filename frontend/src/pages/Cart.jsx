@@ -4,21 +4,19 @@ import CartItemsCard from '../components/CartItemsCard'
 import { useNavigate } from 'react-router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBagShopping, faArrowRight, faShoppingBag } from '@fortawesome/free-solid-svg-icons'
-import { useEffectEvent } from 'react'
 import { api } from '../utils/api'
-import { useState } from 'react'
+import { setCart, updateLocalStorage } from '../features/CartSlice'
+import { fetchDraftCart } from '../store/cart/cartApi'
 
-function Cart({ cartItems, closePopUp }) {
+function Cart({ closePopUp }) {
   const navigate = useNavigate()
-  const [products, setProducts] = useState([])
-  const cart = useSelector(state => state.cart.cartItems)
+  const cartItems = useSelector(state => state.cart.cartItems)
+  const isLoggedin = useSelector(state => state.auth.isLoggedin)
   const user = useSelector(state => state.auth.user)
-  const items = products?.filter(product => (
-    cartItems.find(item => (item.product?._id || item.product) === product._id)
-  ))
+  const dispatch = useDispatch()
+
   const totalPrice = cartItems.reduce((total, item) => {
-    const product = products.find(p => p._id === (item.product?._id || item.product));
-    return total + (product?.price * item.qty || 0);
+    return total + (item.product?.price * item.qty || 0);
   }, 0);
 
   const totalQty = cartItems.reduce((acc, curr) => acc + curr.qty, 0);
@@ -33,15 +31,21 @@ function Cart({ cartItems, closePopUp }) {
     }
   }
 
+
   useEffect(() => {
-    const loadProducts = async () => {
-      const res = await api.get("/products/getProducts")
-      if (res.status === 200) {
-        setProducts(res.data.data)
+    const loadCart = async () => {
+      try {
+        if (cartItems.length === 0 && isLoggedin) {
+          fetchDraftCart(dispatch)
+        }
+      }
+      catch (error) {
+        console.error("Error loading cart:", error)
+        dispatch(setCart([]))
       }
     }
-    loadProducts()
-  }, [products])
+    loadCart()
+  }, [isLoggedin, dispatch])
 
 
   return (
@@ -61,7 +65,7 @@ function Cart({ cartItems, closePopUp }) {
 
       {/* Items */}
       <div className='flex-1 overflow-y-auto p-5 flex flex-col gap-3 custom-scrollbar'>
-        {!items?.length ? (
+        {!cartItems?.length ? (
           <div className='flex flex-col items-center justify-center h-full gap-6 text-center px-6'>
             <div className='w-24 h-24 rounded-3xl glass border border-white/05 flex items-center justify-center animate-float'>
               <FontAwesomeIcon icon={faShoppingBag} className='text-4xl text-slate-600' />
@@ -75,14 +79,14 @@ function Cart({ cartItems, closePopUp }) {
             </button>
           </div>
         ) : (
-          items.map((item) => (
-            <CartItemsCard key={item._id} item={item} cartItems={cartItems} />
+          cartItems.map((item) => (
+            <CartItemsCard key={item.product?._id || item.product} item={item.product} cartItems={cartItems} />
           ))
         )}
       </div>
 
       {/* Footer */}
-      {items?.length > 0 && (
+      {cartItems?.length > 0 && (
         <div className='p-6 border-t border-white/05 bg-slate-950/60 backdrop-blur-xl flex-shrink-0'>
           <div className='flex justify-between items-center mb-2'>
             <span className='text-slate-400 text-sm'>Subtotal</span>
@@ -104,7 +108,6 @@ function Cart({ cartItems, closePopUp }) {
             Proceed to Checkout
             <FontAwesomeIcon icon={faArrowRight} />
           </button>
-          {/* <p className='text-center text-xs text-slate-600 mt-3'>Secure checkout · Free returns</p> */}
         </div>
       )}
     </div>

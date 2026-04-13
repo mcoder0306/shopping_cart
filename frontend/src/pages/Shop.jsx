@@ -32,7 +32,7 @@ function Shop() {
    
        }
        loadProducts()
-  }, [dispatch,urlParams]);
+  }, [dispatch,query]);
 
   return (
     <div className='max-w-7xl mx-auto px-6 pt-36 pb-24'>

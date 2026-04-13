@@ -5,17 +5,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faEnvelope, faLock, faShieldHalved, faArrowRight, faShoppingBag, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
 import { api } from '../utils/api'
 import { toast } from 'react-toastify'
-import {useDispatch} from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { setLoggedinUser } from '../features/AuthSlice'
+import { clearCart } from '../features/CartSlice'
 
 function Register() {
   const { register, handleSubmit, formState: { errors }, watch } = useForm()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const dispatch =useDispatch()
+  const dispatch = useDispatch()
+  const guestCart = useSelector(state => state.cart.cartItems)
 
   const password = watch("password")
-  const navigate=useNavigate()
+  const navigate = useNavigate()
 
   const submitHandler = async (data) => {
     try {
@@ -26,6 +28,19 @@ function Register() {
           autoClose: 2500,
         })
         dispatch(setLoggedinUser(res.data.data))
+        if (guestCart && guestCart.length > 0) {
+          const cartPayload = guestCart.map(item => ({
+            product: item.product?._id || item.product,
+            qty: item.qty,
+            price: item.price
+          }))
+          const mergeRes = await api.post("/carts/mergeCart", {
+            items: cartPayload
+          })
+          if (mergeRes.status === 200 || mergeRes.status === 201) {
+            dispatch(clearCart())
+          }
+        }
         navigate('/')
       } else {
         toast.warning(res.data.message || 'Something went wrong', {

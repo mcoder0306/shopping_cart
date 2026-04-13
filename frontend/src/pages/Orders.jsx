@@ -8,6 +8,7 @@ import { api } from '../utils/api'
 import { useState } from 'react'
 import { Oval } from 'react-loader-spinner'
 import { toast } from 'react-toastify'
+import { fetchCompletedCart } from '../store/cart/cartApi'
 
 const paymentIcons = {
     cod: faTruck,
@@ -22,18 +23,15 @@ const paymentColors = {
 }
 
 function Orders() {
-    const [orders, setOrders] = useState([])
     const dispatch = useDispatch()
+    const orders=useSelector(state=>state.cart.completedCart)
     const [isLoading, setIsLoading] = useState(true)
-
+    
     useEffect(() => {
         const loadOrders = async () => {
             try {
-                const res = await api.get("/carts/getCart/completed");
-                if (res.status === 200) {
-                    setOrders(res.data.data)
-                    setIsLoading(false)
-                }
+                fetchCompletedCart(dispatch)
+                setIsLoading(false)
             } catch (error) {
                 console.log(error)
                 toast.warning('Something went wrong please try again!!', {

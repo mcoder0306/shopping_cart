@@ -21,6 +21,9 @@ const userSchema = new Schema(
         phone: {
             type: String,
         },
+        image:{
+            type:String
+        },
         isActive: {
             type: Boolean,
             default: true

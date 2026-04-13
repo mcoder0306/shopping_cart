@@ -1,15 +1,18 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { addTocart, decreaceQty, increaceQty, removeFromCart } from '../features/CartSlice';
+import { addTocart, decreaceQty, increaceQty, removeFromCart, updateLocalStorage } from '../features/CartSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMinus, faShieldHalved, faTruckFast, faCircleCheck, faStar } from '@fortawesome/free-solid-svg-icons';
 import { api } from '../utils/api';
+import { fetchDraftCart } from '../store/cart/cartApi';
 
 function DetailCard({ product }) {
     const dispatch = useDispatch()
     const cartItems = useSelector(state => state.cart.cartItems)
-    const existing = cartItems.find(item => item.productId === product._id)
+    const existing = cartItems.find(item => (item.product?._id || item.product) === product._id)
+    const user = useSelector(state => state.auth.user)
+    const isLoggedin = useSelector(state => state.auth.isLoggedin)
 
     const rating = (product.rating?.rate || 4.2).toFixed(1);
     const ratingCount = product.rating?.count || 120;
@@ -18,23 +21,33 @@ function DetailCard({ product }) {
 
     const handleAddToCart = async () => {
         try {
-            const res = await api.post(`/carts/addToCart/${product._id}`, {
-                qty: 1,
-                price: product.price
-            })
-            if (res.status === 201) {
-                dispatch(addTocart({ productId: product._id, qty: 1, price: product.price }))
-                toast.success(res.data.data.message || 'Product added to cart! 🎉', {
+            if (!user) {
+                dispatch(addTocart({ product: product, qty: 1, price: product.price }))
+                dispatch(updateLocalStorage())
+                toast.success('Product added to bag! 🎉', {
                     theme: 'dark',
                     autoClose: 2500,
                 })
-            } else {
-                toast.warning(res.data.data.message || 'Something went wrong', {
-                    theme: 'dark',
+            }
+            else {
+                const res = await api.post(`/carts/addToCart/${product._id}`, {
+                    qty: 1,
+                    price: product.price
                 })
+                if (res.status === 201 || res.status === 200) {
+                    fetchDraftCart(dispatch)
+                    toast.success(res.data.data.message || 'Product added to cart! 🎉', {
+                        theme: 'dark',
+                        autoClose: 2500,
+                    })
+                } else {
+                    toast.warning(res.data.data.message || 'Something went wrong', {
+                        theme: 'dark',
+                    })
+                }
             }
         } catch (error) {
-            const msg = error.response?.data?.message || 'logout failed. Please try again.'
+            const msg = error.response?.data?.message || 'Action failed. Please try again.'
             toast.error(msg, {
                 theme: 'dark',
                 autoClose: 3000,
@@ -44,19 +57,28 @@ function DetailCard({ product }) {
     }
     const handleDecreaseQty = async () => {
         try {
-            const res = await api.post(`/carts/addToCart/${product._id}`, {
-                qty: existing.qty - 1,
-                price: product.price
-            })
-            if (res.status === 200 || res.status === 201) {
-                dispatch(decreaceQty({ productId: product._id }))
+            if (!user) {
+                dispatch(decreaceQty({ product: product._id }))
                 if (existing.qty === 1) {
-                    dispatch(removeFromCart({ productId: product._id }))
+                    dispatch(removeFromCart({ product: product._id }))
                 }
-            } else {
-                toast.warning(res.data.data.message || 'Something went wrong', {
-                    theme: 'dark',
+                dispatch(updateLocalStorage())
+            }
+            else {
+                const res = await api.post(`/carts/addToCart/${product._id}`, {
+                    qty: existing.qty - 1,
+                    price: product.price
                 })
+                if (res.status === 200 || res.status === 201) {
+                    fetchDraftCart(dispatch)
+                    if (existing.qty === 1) {
+                        dispatch(removeFromCart({ product: product._id }))
+                    }
+                } else {
+                    toast.warning(res.data.data.message || 'Something went wrong', {
+                        theme: 'dark',
+                    })
+                }
             }
 
         } catch (error) {
@@ -70,16 +92,22 @@ function DetailCard({ product }) {
 
     const handleIncreaseQty = async () => {
         try {
-            const res = await api.post(`/carts/addToCart/${product._id}`, {
-                qty: existing.qty + 1,
-                price: product.price
-            })
-            if (res.status === 200 || res.status === 201) {
-                dispatch(increaceQty({ productId: product._id }))
-            } else {
-                toast.warning(res.data.data.message || 'Something went wrong', {
-                    theme: 'dark',
+            if (!user) {
+                dispatch(increaceQty({ product: product._id }))
+                dispatch(updateLocalStorage())
+            }
+            else {
+                const res = await api.post(`/carts/addToCart/${product._id}`, {
+                    qty: existing.qty + 1,
+                    price: product.price
                 })
+                if (res.status === 200 || res.status === 201) {
+                    fetchDraftCart(dispatch)
+                } else {
+                    toast.warning(res.data.data.message || 'Something went wrong', {
+                        theme: 'dark',
+                    })
+                }
             }
         } catch (error) {
             const msg = error.response?.data?.message || 'something went wrong. Please try again.'

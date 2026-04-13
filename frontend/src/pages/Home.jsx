@@ -19,6 +19,7 @@ function Home() {
 
   const categories = [...new Set(products?.map(product => product.category?.title).filter(Boolean))]
   const featuredProducts = products?.slice(0, 4);
+  const featuredCategories=categories?.slice(0,4)
 
   useEffect(() => {
     const loadProducts = async () => {
@@ -154,7 +155,7 @@ function Home() {
           </div>
 
           <div className='grid lg:grid-cols-4 md:grid-cols-2 gap-6'>
-            {categories.map((category) => {
+            {featuredCategories.map((category) => {
               const categoryproducts = products.filter(product => product.category?.title === category);
               const rawImage = categoryproducts[1]?.image || categoryproducts[0]?.image;
               const displayImage = rawImage ? `http://localhost:3000/${rawImage.replace('uploads/', '')}` : '';

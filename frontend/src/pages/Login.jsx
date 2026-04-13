@@ -12,9 +12,10 @@ import { clearCart } from '../features/CartSlice'
 function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm()
     const [showPassword, setShowPassword] = useState(false)
-    const navigate=useNavigate()
-    const dispatch=useDispatch()
-    const location=useLocation()
+    const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const location = useLocation()
+    const guestCart = useSelector(state => state.cart.cartItems)
 
     const submitHandler = async (data) => {
         try {
@@ -25,16 +26,20 @@ function Login() {
                     autoClose: 2500,
                 })
                 dispatch(setLoggedinUser(res.data.data))
-                const guestCart=JSON.parse(localStorage.getItem("cart"))
-                if(guestCart){
-                    const res=await api.post("/carts/mergeCart",{
-                        items:guestCart
+                if (guestCart && guestCart.length > 0) {
+                    const cartPayload = guestCart.map(item => ({
+                        product: item.product?._id || item.product,
+                        qty: item.qty,
+                        price: item.price
+                    }))
+                    const res = await api.post("/carts/mergeCart", {
+                        items: cartPayload
                     })
-                    if(res.status===200 || res.status===201){
+                    if (res.status === 200 || res.status === 201) {
                         dispatch(clearCart())
                     }
                 }
-                const from=location.state?.from || "/";
+                const from = location.state?.from || res.data.data.isAdmin ? "/dashboard" : "/";
                 navigate(from)
             } else {
                 toast.warning(res.data.data.message || 'Something went wrong', {
@@ -149,7 +154,7 @@ function Login() {
                             Create Account
                         </Link>
                     </p>
-                     <p className='text-center text-slate-400 text-sm'>
+                    <p className='text-center text-slate-400 text-sm'>
                         Forgot Password?{' '}
                         <Link to='/changePassword' className='text-indigo-400 font-bold hover:text-indigo-300 transition-colors'>
                             Change Password

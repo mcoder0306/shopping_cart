@@ -2,7 +2,7 @@ import { faTrashCan, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { removeFromCart, increaceQty, decreaceQty } from '../features/CartSlice'
+import { removeFromCart, increaceQty, decreaceQty, updateLocalStorage } from '../features/CartSlice'
 import { api } from '../utils/api'
 import { toast } from 'react-toastify'
 
@@ -20,6 +20,7 @@ function CartItemsCard({ item, cartItems }) {
                 if (qty === 1) {
                     dispatch(removeFromCart({ product: id }))
                 }
+                dispatch(updateLocalStorage())
             }
             else {
                 const res = await api.post(`/carts/addToCart/${id}`, {
@@ -51,6 +52,7 @@ function CartItemsCard({ item, cartItems }) {
         try {
             if (!user) {
                 dispatch(increaceQty({ product: id }))
+                dispatch(updateLocalStorage())
             }
             else {
                 const res = await api.post(`/carts/addToCart/${id}`, {
@@ -78,6 +80,7 @@ function CartItemsCard({ item, cartItems }) {
         try {
             if (!user) {
                 dispatch(removeFromCart({ product: id }))
+                dispatch(updateLocalStorage())
             }
             else {
                 const res = await api.delete(`/carts/deleteFromCart/${id}`)

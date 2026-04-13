@@ -49,6 +49,7 @@ const addProductToCart = async (data) => {
         );
 
         await existingCart.save({ validateBeforeSave: false })
+        await existingCart.populate({ path: 'items.product', populate: { path: 'category' } })
         return { status: 201, message: "product added to cart", cart: existingCart }
     }
     //if usercart is not already there create one
@@ -67,6 +68,7 @@ const addProductToCart = async (data) => {
         if (!newCart) {
             return { status: 500, message: "something went wrong in new cart" }
         }
+        await newCart.populate({ path: 'items.product', populate: { path: 'category' } })
         return { status: 201, message: "product added to cart", cart: newCart }
     }
 }
@@ -98,6 +100,7 @@ const deletProductFromCart = async (data) => {
     }
     cart.total = total
     await cart.save({ validateBeforeSave: false })
+    await cart.populate({ path: 'items.product', populate: { path: 'category' } })
     return { status: 200, message: "product removed from cart", cart: cart }
 }
 
@@ -116,11 +119,11 @@ const getUserCart = async (data) => {
         ]
     };
     const cart = data.status === 'draft'
-        ? await Cart.findOne(query).populate('items.product')
-        : await Cart.find(query).populate('items.product');
+        ? await Cart.findOne(query).populate({ path: 'items.product', populate: { path: 'category' } })
+        : await Cart.find(query).populate({ path: 'items.product', populate: { path: 'category' } });
 
     if (!cart || (Array.isArray(cart) && cart.length === 0)) {
-        return { status: 200, message: "empty cart", cart: [] }
+        return { status: 200, message: "empty cart", cart: data.status === 'draft' ? { items: [] } : [] }
     }
     return { status: 200, message: "cart", cart: cart }
 }
@@ -151,7 +154,7 @@ const mergeGuestCart = async (data) => {
                 item => item.product.equals(new mongoose.Types.ObjectId(cartitem.product))
             )
             if (existingItem) {
-                existingItem.qty = cartitem.qty
+                existingItem.qty += cartitem.qty
             }
             else {
                 cart.items.push(cartitem)
@@ -160,6 +163,7 @@ const mergeGuestCart = async (data) => {
     }
     cart.total = cart.items.reduce((acc, item) => acc + item.qty * item.price, 0)
     await cart.save({ validateBeforeSave: false })
+    await cart.populate({ path: 'items.product', populate: { path: 'category' } })
     return { status: 200, message: "cart", cart: cart }
 
 }
@@ -207,6 +211,7 @@ const updateCart = async (data) => {
     };
     cart.total = total
     await cart.save({ validateBeforeSave: false })
+    await cart.populate({ path: 'items.product', populate: { path: 'category' } })
 
     return { status: 200, message: "cart", cart: cart }
 }

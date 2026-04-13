@@ -9,15 +9,13 @@ import { api } from '../utils/api';
 import { logoutUser } from '../features/AuthSlice';
 import { toast } from 'react-toastify'
 import { setLoggedinUser } from '../features/AuthSlice';
-import { setCart } from '../features/CartSlice'
-import { fetchDraftCart } from '../store/cart/cartApi';
+import { clearCart } from '../features/CartSlice'
 
 function Navbar() {
   const [openPopup, setOpenPopup] = useState(null);
   const [scrolled, setScrolled] = useState(false);
   const HandleRemovePopUp = () => setOpenPopup(null);
   const cartCount = useSelector(state => state.cart.cartCount)
-  const cart = useSelector(state => state.cart.cartItems)
   const navigate = useNavigate()
   const user = useSelector(state => state.auth.user)
   const isLoggedin = useSelector(state => state.auth.isLoggedin)
@@ -25,8 +23,6 @@ function Navbar() {
   const [searchValue, setSearchValue] = useState("")
   const [openUserMenu, setOpenUserMenu] = useState(false)
   const userMenuRef = useRef(null)
-  const [cartItems, setCartItems] = useState([])
-  const cartItemsCount = isLoggedin ? cartItems.length : cartCount
 
   const handleLogout = async () => {
     try {
@@ -37,6 +33,7 @@ function Navbar() {
           autoClose: 2500,
         })
         dispatch(logoutUser())
+        dispatch(clearCart())
         navigate('/')
       } else {
         toast.warning(res.data.message || 'Something went wrong', {
@@ -58,48 +55,7 @@ function Navbar() {
     navigate(`/shop?search=${searchValue}`)
   }
 
-  useEffect(() => {
-    const loadCart = async () => {
-      try {
-        const localData = JSON.parse(localStorage.getItem("cart"))
-        if (isLoggedin) {
-          // If logged in, prioritize server cart and merge if local data exists
-          if (localData && localData.length > 0) {
-            const mergeRes = await api.post("/carts/mergeCart", { items: localData })
-            if (mergeRes.status === 200 || mergeRes.status === 201) {
-              localStorage.removeItem("cart")
-              dispatch(setCart(mergeRes.data.data.items))
-              return;
-            }
-          }
-          if (cartItems.length === 0) {
-            fetchDraftCart(dispatch)
-          }
-          // const res = await api.get(`/carts/getCart/draft`)
-          // if (res.status === 200) {
-          //   setCartItems(res.data.data.items || [])
-          // }
-          else {
-            toast.error(res.data.message, {
-              theme: 'dark',
-              autoClose: 3000,
-            })
-          }
-        } else {
-          // If not logged in, use local data
-          if (localData) {
-            dispatch(setCart(localData))
-          } else {
-            dispatch(setCart([]))
-          }
-        }
-      } catch (error) {
-        console.error("Error loading cart:", error)
-        dispatch(setCart([]))
-      }
-    }
-    loadCart()
-  }, [isLoggedin])
+
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 30);
@@ -182,8 +138,9 @@ function Navbar() {
           </div>
           <div className='border py-1 px-2 rounded-lg border-gray-500'>
             <form onSubmit={handleSearch}>
-              <button><FontAwesomeIcon icon={faSearch} className='text-gray-500 mx-1' /></button>
+              <FontAwesomeIcon icon={faSearch} className='text-gray-500 mx-1' />
               <input type="text" name="search" id="search" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder='Search here..' className='focus:outline-none' />
+              <button></button>
             </form>
           </div>
 
@@ -194,9 +151,9 @@ function Navbar() {
               className='relative p-2.5 hover:bg-white/5 rounded-xl transition-colors group'
             >
               <FontAwesomeIcon icon={faShoppingCart} className='text-lg text-slate-300 group-hover:text-white transition-colors' />
-              {cartItemsCount > 0 && (
+              {cartCount > 0 && (
                 <span className='absolute -top-1 -right-1 bg-indigo-500 text-white rounded-full min-w-[20px] h-5 flex items-center justify-center text-[10px] font-black shadow-lg shadow-indigo-500/40 animate-bounce-in'>
-                  {cartItemsCount}
+                  {cartCount}
                 </span>
               )}
             </button>
@@ -210,9 +167,6 @@ function Navbar() {
                   {openUserMenu && (
                     <div className="absolute right-0 mt-2 w-48 shadow-lg border bg-gray-800 rounded-lg p-2 z-50">
                       <ul className="flex flex-col">
-                        {
-                          user.isAdmin && <li className="p-2 hover:bg-gray-500 cursor-pointer" onClick={() => { navigate("/dashboard"); setOpenUserMenu(false); }}>Dashboard</li>
-                        }
                         <li className="p-2 hover:bg-gray-500 cursor-pointer" onClick={() => { navigate("/profile"); setOpenUserMenu(false); }}>Profile</li>
                         <li className="p-2 hover:bg-gray-500 cursor-pointer" onClick={() => { navigate("/orders"); setOpenUserMenu(false); }}>Orders</li>
                         <li className="p-2 hover:bg-gray-500 cursor-pointer" onClick={() => { navigate("/favourites"); setOpenUserMenu(false); }}>Favourites</li>
@@ -274,7 +228,7 @@ function Navbar() {
 
         {/* Cart Sidebar */}
         <PopUp openPopUp={openPopup === "cartpopup"} closePopUp={HandleRemovePopUp} id="cartpopup" className="justify-end" innerClass="w-full md:w-[460px] h-full mr-0 glass rounded-l-3xl shadow-2xl">
-          <Cart cartItems={isLoggedin ? cartItems : cart} closePopUp={HandleRemovePopUp} />
+          <Cart closePopUp={HandleRemovePopUp} />
         </PopUp>
       </nav>
     </div>

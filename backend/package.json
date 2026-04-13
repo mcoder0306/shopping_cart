@@ -12,7 +12,8 @@
   "type": "module",
   "main": "app.js",
   "scripts": {
-    "dev": "nodemon src/app.js"
+    "server": "nodemon src/app.js",
+    "dev": "concurrently \"npm run server\" \"stripe listen --forward-to localhost:3000/api/v1/payment/webhook\""
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -28,5 +29,8 @@
     "multer": "^2.1.1",
     "nodemon": "^3.1.14",
     "stripe": "^21.0.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
   }
 }

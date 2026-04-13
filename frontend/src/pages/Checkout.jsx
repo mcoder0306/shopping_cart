@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronLeft, faCreditCard, faTruck, faMobileScreenButton, faCheckCircle, faShieldHalved, faLock, faLocationDot } from '@fortawesome/free-solid-svg-icons'
 import { api } from '../utils/api'
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js'
+import { fetchDraftCart } from '../store/cart/cartApi'
 
 const steps = ['Review Order', 'Payment', 'Confirm']
 
@@ -30,25 +31,21 @@ const CARD_ELEMENT_OPTIONS = {
 };
 
 function Checkout() {
-    const [cartItems, setCartItems] = useState([])
-    const [products, setProducts] = useState([])
+    const cartItems = useSelector(state => state.cart.cartItems)
+    const isLoggedin = useSelector(state => state.auth.isLoggedin)
+    const cartId = useSelector(state => state.cart.cartId)
     const [address, setAddress] = useState("")
-    const [cartId, setCartId] = useState(null)
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [step] = useState(1)
     const stripe = useStripe()
     const elements = useElements()
 
-    const items = products?.filter(product => (
-        cartItems?.find(item => (item.product?._id || item.product) === product._id)
-    ))
     const [selectedOpt, setSelectedOpt] = useState("cod");
 
     const totalQty = cartItems?.reduce((total, item) => total + item.qty, 0);
     const totalPrice = cartItems?.reduce((total, item) => {
-        const product = products?.find(product => product._id === (item.product?._id || item.product));
-        return total + (product?.price * item.qty || 0);
+        return total + (item.product?.price * item.qty || 0);
     }, 0);
 
     const handleSubmit = async () => {
@@ -145,10 +142,8 @@ function Checkout() {
     useEffect(() => {
         const fetchcart = async () => {
             try {
-                const res = await api.get("/carts/getCart/draft")
-                if (res.status === 200) {
-                    setCartItems(res.data.data.items)
-                    setCartId(res.data.data._id)
+                if (isLoggedin) {
+                    fetchDraftCart(dispatch)
                 }
             } catch (error) {
                 const msg = error.response?.data?.message || 'something went wrong. Please try again.'
@@ -159,22 +154,7 @@ function Checkout() {
             }
         }
         fetchcart()
-        const fetchproducts = async () => {
-            try {
-                const res = await api.get("/products/getProducts")
-                if (res.status === 200) {
-                    setProducts(res.data.data)
-                }
-            } catch (error) {
-                const msg = error.response?.data?.message || 'something went wrong. Please try again.'
-                toast.error(msg, {
-                    theme: 'dark',
-                    autoClose: 3000,
-                })
-            }
-        }
-        fetchproducts()
-    }, [])
+    }, [isLoggedin, dispatch])
 
 
     if (cartItems.length === 0) {
@@ -232,25 +212,24 @@ function Checkout() {
                         <h2 className='text-xl font-black text-white mb-2'>Order Summary</h2>
                         <div className='glass rounded-3xl overflow-hidden border border-white/05'>
                             <div className='divide-y divide-white/05'>
-                                {items?.map((item) => {
-                                    const cartItem = cartItems?.find(ci => (ci?.product?._id || ci?.product) === item?._id);
-                                    return (
-                                        <div key={item._id} className='p-5 flex gap-5 items-center hover:bg-white/02 transition-colors'>
-                                            <div className='w-20 h-20 bg-white rounded-2xl p-3 flex-shrink-0'>
-                                                <img src={`http://localhost:3000/${item.image?.replace('uploads/', '')}`} alt={item.title} className='w-full h-full object-contain mix-blend-multiply' />
-                                            </div>
-                                            <div className='flex-1 min-w-0'>
-                                                <h3 className='font-bold text-slate-100 text-sm line-clamp-2 mb-1'>{item.title}</h3>
-                                                <span className='badge badge-indigo text-[10px]'>{item.category.title}</span>
-                                                <p className='text-xs text-slate-500 mt-1'>Qty: {cartItem?.qty}</p>
-                                            </div>
-                                            <div className='text-right flex-shrink-0'>
-                                                <p className='font-black text-lg text-white'>${(item.price * (cartItem?.qty || 0)).toFixed(2)}</p>
-                                                <p className='text-xs text-slate-500'>${item.price} each</p>
-                                            </div>
+                                {cartItems?.map((item) => (
+                                    <div key={item.product?._id || item.product} className='p-5 flex gap-5 items-center hover:bg-white/02 transition-colors'>
+                                        <div className='w-20 h-20 bg-white rounded-2xl p-3 flex-shrink-0'>
+                                            <img src={`http://localhost:3000/${item.product?.image?.replace('uploads/', '')}`} alt={item.product?.title} className='w-full h-full object-contain mix-blend-multiply' />
                                         </div>
-                                    )
-                                })}
+                                        <div className='flex-1 min-w-0'>
+                                            <h3 className='font-bold text-slate-100 text-sm line-clamp-2 mb-1'>{item.product?.title}</h3>
+                                            {item.product?.category?.title && (
+                                                <span className='badge badge-indigo text-[10px]'>{item.product.category.title}</span>
+                                            )}
+                                            <p className='text-xs text-slate-500 mt-1'>Qty: {item.qty}</p>
+                                        </div>
+                                        <div className='text-right flex-shrink-0'>
+                                            <p className='font-black text-lg text-white'>${(item.product?.price * item.qty).toFixed(2)}</p>
+                                            <p className='text-xs text-slate-500'>${item.product?.price} each</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     </div>

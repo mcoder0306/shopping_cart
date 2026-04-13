@@ -19,9 +19,9 @@ import ChangePassword from './pages/ChangePassword.jsx'
 import OrderTracking from './pages/OrderTracking.jsx'
 import Favourites from './pages/Favourites.jsx'
 import Dashboard from './pages/Dashboard.jsx'
-import Profile from './pages/Profile.jsx'
 import { Elements } from "@stripe/react-stripe-js"
 import { stripePromise } from './utils/stripe.js'
+import Profile from './pages/Profile.jsx'
 
 
 function App() {
