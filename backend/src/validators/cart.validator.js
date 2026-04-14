@@ -41,7 +41,8 @@ const updateCartStatusValidator = {
         orderStatus: Joi.string().valid("draft", "completed"),
         lat: Joi.number().min(-90).max(90).required(),
         lng: Joi.number().min(-180).max(180).required(),
-        total: Joi.number().positive().required()
+        total: Joi.number().positive().required(),
+        shippingAddress: Joi.object().required()
     })
 }
 

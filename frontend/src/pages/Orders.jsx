@@ -24,9 +24,9 @@ const paymentColors = {
 
 function Orders() {
     const dispatch = useDispatch()
-    const orders=useSelector(state=>state.cart.completedCart)
+    const orders = useSelector(state => state.cart.completedCart)
     const [isLoading, setIsLoading] = useState(true)
-    
+
     useEffect(() => {
         const loadOrders = async () => {
             try {

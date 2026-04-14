@@ -169,7 +169,7 @@ const mergeGuestCart = async (data) => {
 }
 
 const updateCart = async (data) => {
-    const { paymentMethod, paymentStatus, orderStatus, lat, lng, total } = data.body;
+    const { paymentMethod, paymentStatus, orderStatus, lat, lng, total, shippingAddress } = data.body;
     const cart = await Cart.findOne({
         $and: [
             { user: new mongoose.Types.ObjectId(data.userId) },
@@ -209,6 +209,7 @@ const updateCart = async (data) => {
         lat,
         lng
     };
+    cart.shippingAddress = shippingAddress
     cart.total = total
     await cart.save({ validateBeforeSave: false })
     await cart.populate({ path: 'items.product', populate: { path: 'category' } })

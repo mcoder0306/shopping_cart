@@ -9,7 +9,7 @@ import { faPlus, faMinus, faInfoCircle, faStar, faHeart } from '@fortawesome/fre
 import { api } from '../utils/api'
 import { fetchDraftCart } from '../store/cart/cartApi'
 
-function Card({ product, favourites }) {
+function Card({ product, favourites,onRemoveFavourite }) {
     const dispatch = useDispatch()
     const [openPopup, setOpenPopup] = useState(null);
     const [wishlisted, setWishlisted] = useState(false);
@@ -31,6 +31,7 @@ function Card({ product, favourites }) {
             }
             else {
                 setWishlisted(prev => !prev);
+                 onRemoveFavourite && onRemoveFavourite(product._id);
                 toast.warning(res.data.data.message || 'Product removed from favourite! ', {
                     theme: 'dark',
                     autoClose: 2500,

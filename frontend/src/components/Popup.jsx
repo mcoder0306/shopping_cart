@@ -28,12 +28,12 @@ const PopUp = ({ openPopUp, closePopUp, children, className, innerClass = "w-fit
     <div
       id='ModelContainer'
       onClick={handlelosePopUp}
-      className={`fixed inset-0 z-[100] bg-slate-950/60 backdrop-blur-md flex transition-all duration-500 animate-in fade-in ${className}`}>
+      className={`fixed inset-0 z-100 bg-slate-950/60 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-500 animate-in fade-in ${className}`}>
       <div
-        className={`relative ${innerClass} animate-in slide-in-from-right duration-500 shadow-2xl flex flex-col`}>
-        <div className='absolute top-6 right-6 z-10'>
+        className={`relative ${innerClass} animate-in zoom-in-95 duration-500 shadow-2xl flex flex-col`}>
+        <div className='absolute top-4 right-4 z-10'>
           <button
-            className='w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white hover:text-gray-400 transition-colors'
+            className='w-10 h-10 rounded-full glass flex items-center justify-center hover:bg-white/10 hover:text-white transition-colors'
             onClick={closePopUp}
           >
             <FontAwesomeIcon icon={faClose} />

@@ -42,6 +42,15 @@ const cartSchema = new Schema({
     destinationCords: {
         lat: Number,
         lng: Number
+    },
+    shippingAddress: {
+        name: String,
+        phone: String,
+        addressLine: String,
+        city: String,
+        state: String,
+        pincode: String,
+        label: String
     }
 
 },

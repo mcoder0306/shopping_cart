@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faBars, faShoppingCart, faBagShopping, faUser, faXmark, faStore, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faShoppingCart, faBagShopping, faUser, faXmark, faStore, faSearch, faHome, faBoxArchive, faHeart, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons'
 import PopUp from './Popup';
 import { useDispatch, useSelector } from 'react-redux';
 import Cart from '../pages/Cart';
@@ -50,8 +50,8 @@ function Navbar() {
 
   }
 
-  const handleSearch = () => {
-    // e.preventDefault()
+  const handleSearch = (e) => {
+    if (e) e.preventDefault()
     navigate(`/shop?search=${searchValue}`)
   }
 
@@ -109,12 +109,12 @@ function Navbar() {
         <div className='flex items-center justify-between'>
 
           {/* Logo */}
-          <Link to="/" className='flex items-center gap-3 group'>
+          <Link to="/" className='flex items-center gap-2 group md:gap-3'>
             <div className='w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-lg'
               style={{ background: 'linear-gradient(135deg, #6366f1, #818cf8)' }}>
               <FontAwesomeIcon icon={faBagShopping} className='text-white text-base' />
             </div>
-            <span className='font-black text-2xl tracking-tight'>
+            <span className='font-black text-xl sm:text-2xl tracking-tight'>
               <span className='text-gradient'>Shoppy</span>
               <span className='text-white'>Mart</span>
             </span>
@@ -136,11 +136,11 @@ function Navbar() {
             ))}
 
           </div>
-          <div className='border py-1 px-2 rounded-lg border-gray-500'>
-            <form onSubmit={handleSearch}>
-              <FontAwesomeIcon icon={faSearch} className='text-gray-500 mx-1' />
-              <input type="text" name="search" id="search" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder='Search here..' className='focus:outline-none' />
-              <button></button>
+          <div className='hidden md:block py-1 px-3 rounded-xl bg-white/5 border border-white/10 focus-within:border-indigo-500/50 transition-colors'>
+            <form onSubmit={handleSearch} className="flex items-center gap-2">
+              <FontAwesomeIcon icon={faSearch} className='text-slate-400' />
+              <input type="text" name="search" id="search" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder='Search products...' className='bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none w-48' />
+              <button type="submit" className="hidden"></button>
             </form>
           </div>
 
@@ -160,9 +160,17 @@ function Navbar() {
             {
               isLoggedin && (
                 <div className='relative user-menu' ref={userMenuRef}>
-                  <button className='p-2.5 hover:bg-white/5 rounded-xl transition-colors group' onClick={() => setOpenUserMenu(prev => !prev)}>
-                    <FontAwesomeIcon icon={faUser} className='text-lg text-slate-300 group-hover:text-white transition-colors px-1' />
-                    {isLoggedin && user.name}
+                  <button className='flex items-center gap-3 p-1 pl-1 pr-3 hover:bg-white/5 rounded-full hover:border-white/10 transition-all duration-300 group' onClick={() => setOpenUserMenu(prev => !prev)}>
+                    <div className='w-9 h-9 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 group-hover:border-indigo-500/60 transition-all duration-500 shadow-lg'>
+                      {user?.image ? (
+                        <img src={`http://localhost:3000/${user.image?.replace('uploads/', '')}`} alt="profile" className='w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500' />
+                      ) : (
+                        <FontAwesomeIcon icon={faUser} className='text-xs text-indigo-400 group-hover:text-white transition-colors' />
+                      )}
+                    </div>
+                    <span className='text-sm font-bold text-slate-300 group-hover:text-white transition-colors max-w-[100px] truncate'>
+                      {user.name}
+                    </span>
                   </button>
                   {openUserMenu && (
                     <div className="absolute right-0 mt-2 w-48 shadow-lg border bg-gray-800 rounded-lg p-2 z-50">
@@ -170,8 +178,8 @@ function Navbar() {
                         <li className="p-2 hover:bg-gray-500 cursor-pointer" onClick={() => { navigate("/profile"); setOpenUserMenu(false); }}>Profile</li>
                         <li className="p-2 hover:bg-gray-500 cursor-pointer" onClick={() => { navigate("/orders"); setOpenUserMenu(false); }}>Orders</li>
                         <li className="p-2 hover:bg-gray-500 cursor-pointer" onClick={() => { navigate("/favourites"); setOpenUserMenu(false); }}>Favourites</li>
-                        <li className="p-2 hover:bg-gray-500 cursor-pointer">
-                          <button onClick={() => { handleLogout(); setOpenUserMenu(false); }}>logout</button>
+                        <li className="p-2 hover:bg-gray-500 cursor-pointer" onClick={() => { handleLogout(); setOpenUserMenu(false); }}>
+                          Logout
                         </li>
                       </ul>
                     </div>
@@ -205,24 +213,78 @@ function Navbar() {
         </div>
 
         {/* Mobile Drawer */}
-        <PopUp openPopUp={openPopup === "barpopup"} closePopUp={HandleRemovePopUp} id="barpopup" className="justify-end" innerClass="w-3/4 max-w-xs h-full mr-0 rounded-l-3xl glass">
-          <div className='p-8 flex flex-col gap-2 pt-16'>
-            <div className='flex items-center gap-3 mb-8'>
+        <PopUp openPopUp={openPopup === "barpopup"} closePopUp={HandleRemovePopUp} id="barpopup" className="justify-end" innerClass="w-3/4 max-w-sm h-full mr-0 rounded-l-3xl glass flex flex-col">
+          <div className='p-6 flex flex-col gap-2 pt-12 flex-1 overflow-y-auto custom-scrollbar'>
+            <div className='flex items-center gap-3 mb-6'>
               <div className='w-9 h-9 rounded-xl flex items-center justify-center' style={{ background: 'linear-gradient(135deg, #6366f1, #818cf8)' }}>
                 <FontAwesomeIcon icon={faBagShopping} className='text-white text-sm' />
               </div>
               <span className='font-black text-xl'>ShoppyMart</span>
             </div>
-            {navLinks.map(link => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={HandleRemovePopUp}
-                className='text-base font-semibold py-3 px-4 rounded-xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors border-b border-slate-800/50 last:border-0'
-              >
-                {link.label}
-              </Link>
-            ))}
+
+            {/* Mobile Search */}
+            <form onSubmit={(e) => { handleSearch(e); HandleRemovePopUp(); }} className="flex items-center gap-2 mb-6 bg-white/5 border border-white/10 rounded-xl px-3 py-2 focus-within:border-indigo-500/50 transition-colors">
+              <FontAwesomeIcon icon={faSearch} className='text-slate-400 text-sm' />
+              <input type="text" value={searchValue} onChange={(e) => setSearchValue(e.target.value)} placeholder='Search...' className='bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none w-full' />
+              <button type="submit" className="hidden"></button>
+            </form>
+
+            <div className="flex flex-col gap-1 mb-6">
+              {navLinks.map(link => {
+                let icon;
+                if (link.label === 'Home') icon = faHome;
+                else if (link.label === 'Shop') icon = faStore;
+                else if (link.label === 'Login' || link.label === 'Register') icon = faUser;
+
+                return (
+                  <NavLink
+                    key={link.to}
+                    to={link.to}
+                    end={link.end}
+                    onClick={HandleRemovePopUp}
+                    className={({ isActive }) => `flex items-center gap-4 text-sm font-semibold py-3 px-4 rounded-2xl transition-colors ${isActive ? 'text-white bg-indigo-500/20 shadow-inner' : 'text-slate-300 hover:text-white hover:bg-white/5'}`}
+                  >
+                    {icon && <FontAwesomeIcon icon={icon} className="opacity-70 text-lg w-5" />}
+                    {link.label}
+                  </NavLink>
+                )
+              })}
+            </div>
+
+            {/* Mobile User Menu */}
+            {isLoggedin && (
+              <div className="mt-auto border-t border-white/10 pt-6 flex flex-col gap-1">
+                <div className="px-4 py-2 mb-2 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full border border-indigo-500/30 overflow-hidden flex items-center justify-center bg-indigo-500/10">
+                    {user?.image ? (
+                      <img src={`http://localhost:3000/${user.image?.replace('uploads/', '')}`} alt="profile" className='w-full h-full object-cover' />
+                    ) : (
+                      <FontAwesomeIcon icon={faUser} className='text-indigo-400' />
+                    )}
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">Account</p>
+                    <p className="text-sm font-black text-white truncate max-w-[120px]">{user?.name}</p>
+                  </div>
+                </div>
+                <Link to="/profile" onClick={HandleRemovePopUp} className='flex items-center gap-4 text-sm font-semibold py-3 px-4 rounded-2xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors'>
+                  <FontAwesomeIcon icon={faUser} className="opacity-70 text-lg w-5" />
+                  Profile
+                </Link>
+                <Link to="/orders" onClick={HandleRemovePopUp} className='flex items-center gap-4 text-sm font-semibold py-3 px-4 rounded-2xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors'>
+                  <FontAwesomeIcon icon={faBoxArchive} className="opacity-70 text-lg w-5" />
+                  Orders
+                </Link>
+                <Link to="/favourites" onClick={HandleRemovePopUp} className='flex items-center gap-4 text-sm font-semibold py-3 px-4 rounded-2xl text-slate-300 hover:text-white hover:bg-white/5 transition-colors'>
+                  <FontAwesomeIcon icon={faHeart} className="opacity-70 text-lg w-5" />
+                  Favourites
+                </Link>
+                <button onClick={() => { handleLogout(); HandleRemovePopUp(); }} className='flex items-center gap-4 text-left text-sm font-semibold py-3 px-4 rounded-2xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors mt-2'>
+                  <FontAwesomeIcon icon={faArrowRightFromBracket} className="opacity-70 text-lg w-5" />
+                  Logout
+                </button>
+              </div>
+            )}
           </div>
         </PopUp>
 

@@ -1,5 +1,41 @@
 import { model, Schema } from "mongoose";
 
+const addressSchema = new Schema({
+    name: {
+        type: String,
+        required: true
+    },
+    phone: {
+        type: String,
+        required: true
+    },
+    city: {
+        type: String,
+        required: true
+    },
+    state: {
+        type: String,
+        required: true
+    },
+    pincode: {
+        type: String,
+        required: true
+    },
+    addressLine: {
+        type: String,
+        required: true
+    },
+    label: {
+        type: String,
+        enum: ['home', 'work', 'other'],
+        default: 'home'
+    },
+    isDefault: {
+        type: Boolean,
+        default: false
+    }
+});
+
 const userSchema = new Schema(
     {
         name: {
@@ -15,14 +51,12 @@ const userSchema = new Schema(
             type: String,
             required: true
         },
-        address: {
-            type: String,
-        },
+        addresses: [addressSchema],
         phone: {
             type: String,
         },
-        image:{
-            type:String
+        image: {
+            type: String
         },
         isActive: {
             type: Boolean,

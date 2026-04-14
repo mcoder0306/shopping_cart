@@ -12,6 +12,16 @@ function Favourites() {
     const [products, setProducts] = useState([])
     const [isLoading, setIsLoading] = useState(true)
 
+    const handleRemoveFavourite = (productId) => {
+        setProducts(prev =>
+            prev.filter(p => p.product._id !== productId)
+        );
+
+        setFavourites(prev =>
+            prev.filter(id => id !== productId)
+        );
+    };
+
     useEffect(() => {
         const fetchFavourites = async () => {
             try {
@@ -32,7 +42,7 @@ function Favourites() {
             }
         }
         fetchFavourites()
-    }, [favourites])
+    }, [])
     return (
         <div className='max-w-7xl mx-auto px-6 pt-36 pb-24'>
             <div className='flex flex-col gap-10'>
@@ -84,7 +94,7 @@ function Favourites() {
                             ) : (
                                 <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8'>
                                     {products.map((favouriteProduct) => (
-                                        <Card key={favouriteProduct.product._id} product={favouriteProduct.product} favourites={favourites} />
+                                        <Card key={favouriteProduct.product._id} product={favouriteProduct.product} favourites={favourites} onRemoveFavourite={handleRemoveFavourite} />
                                     ))}
                                 </div>
                             )}
