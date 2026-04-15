@@ -4,17 +4,17 @@ import {
     faCheckCircle, faShieldHalved, faLock, faLocationDot,
     faPlus, faHome, faBriefcase, faMapPin
 } from '@fortawesome/free-solid-svg-icons'
-import { api } from '../utils/api'
+import { api } from '../../utils/api'
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js'
-import { fetchDraftCart } from '../store/cart/cartApi'
-import PopUp from '../components/Popup'
+import { fetchDraftCart } from '../../store/cart/cartApi'
+import PopUp from '../../components/user/Popup'
 import { useDispatch, useSelector } from 'react-redux'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { useEffect } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { toast } from 'react-toastify'
-import { clearCart } from '../features/CartSlice'
+import { clearCart } from '../../features/CartSlice'
 
 const steps = ['Review Order', 'Payment', 'Confirm']
 
@@ -278,13 +278,15 @@ function Checkout() {
                                     </div>
                                     <h2 className='text-lg md:text-xl font-black text-white'>Shipping Address</h2>
                                 </div>
-                                <button onClick={() => setShowAddressModal(true)} className='btn-premium text-[10px] px-4 py-2.5 rounded-xl flex items-center justify-center gap-2'>
-                                    <FontAwesomeIcon icon={faPlus} />
-                                    Add New Address
-                                </button>
+                                {addresses.length > 0 && (
+                                    <button onClick={() => setShowAddressModal(true)} className='btn-premium text-[10px] px-4 py-2.5 rounded-xl flex items-center justify-center gap-2'>
+                                        <FontAwesomeIcon icon={faPlus} />
+                                        Add New Address
+                                    </button>
+                                )}
                             </div>
 
-                            <div className='max-h-[140px] overflow-y-auto pr-2 custom-scrollbar'>
+                            <div className={addresses.length > 0 ? 'max-h-[140px] overflow-y-auto pr-2 custom-scrollbar' : ''}>
                                 <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                                     {addresses.length > 0 ? (
                                         addresses.map((addr) => (
@@ -320,13 +322,13 @@ function Checkout() {
                                             </div>
                                         ))
                                     ) : (
-                                        <div className='col-span-full text-center py-12 px-6 rounded-4xl border-2 border-dashed border-white/05 bg-white/01'>
-                                            <div className='w-16 h-16 rounded-3xl bg-white/05 flex items-center justify-center mx-auto mb-4 text-slate-500 text-2xl'>
+                                        <div className='col-span-full text-center py-6 px-6 rounded-3xl border-2 border-dashed border-gray-600 bg-white/01'>
+                                            <div className='w-12 h-12 rounded-2xl bg-white/05 flex items-center justify-center mx-auto mb-3 text-slate-500 text-xl'>
                                                 <FontAwesomeIcon icon={faLocationDot} />
                                             </div>
-                                            <h3 className='text-white font-bold mb-1'>No addresses found</h3>
-                                            <p className='text-slate-500 text-sm mb-6'>Add a delivery address to proceed with your order</p>
-                                            <button onClick={() => setShowAddressModal(true)} className='btn-premium px-8 py-3 rounded-2xl font-bold'>
+                                            <h3 className='text-white font-bold text-sm mb-1'>No addresses found</h3>
+                                            <p className='text-slate-500 text-xs mb-4'>Add a delivery address to proceed with your order</p>
+                                            <button onClick={() => setShowAddressModal(true)} className='btn-premium px-6 py-2.5 rounded-xl text-sm font-bold'>
                                                 Add Your First Address
                                             </button>
                                         </div>
@@ -347,7 +349,7 @@ function Checkout() {
                             <div className='max-h-[420px] overflow-y-auto pr-2 custom-scrollbar'>
                                 <div className='space-y-4'>
                                     {cartItems?.map((item) => (
-                                        <div key={item.product?._id || item.product} className='p-3 md:p-4 rounded-2xl md:rounded-3xl bg-white/02 border border-white/05 flex gap-4 md:gap-6 items-center hover:border-white/10 transition-colors'>
+                                        <div key={item.product?._id || item.product} className='p-3 md:p-4 rounded-2xl md:rounded-3xl bg-white/02 border border-gray-700 flex gap-4 md:gap-6 items-center hover:border-white/10 transition-colors'>
                                             <div className='w-16 h-16 md:w-20 md:h-20 bg-white rounded-xl md:rounded-2xl p-2 md:p-3 shrink-0 group overflow-hidden'>
                                                 <img src={`http://localhost:3000/${item.product?.image?.replace('uploads/', '')}`} alt={item.product?.title} className='w-full h-full object-contain mix-blend-multiply group-hover:scale-110 transition-transform duration-500' />
                                             </div>
@@ -392,7 +394,7 @@ function Checkout() {
                                     ].map((opt) => (
                                         <label
                                             key={opt.id}
-                                            className={`flex items-center gap-3 p-3.5 rounded-2xl border transition-all cursor-pointer ${selectedOpt === opt.id ? 'bg-indigo-600/10 border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.15)]' : 'bg-white/02 border-white/03 hover:border-white/08'}`}
+                                            className={`flex items-center gap-3 p-3.5 rounded-2xl border border-gray-700 transition-all cursor-pointer ${selectedOpt === opt.id ? 'bg-indigo-600/10 border-indigo-500/40 shadow-[0_0_15px_rgba(99,102,241,0.15)]' : 'bg-white/02 border-white/03 hover:border-white/08'}`}
                                         >
                                             <input type="radio" name="payment" value={opt.id} checked={selectedOpt === opt.id} onChange={(e) => setSelectedOpt(e.target.value)} className='hidden' />
                                             <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-base ${selectedOpt === opt.id ? 'bg-indigo-500 text-white' : 'bg-white/05 text-slate-500'}`}>
@@ -410,7 +412,7 @@ function Checkout() {
                                 </div>
 
                                 {selectedOpt === "card" && (
-                                    <div className='mt-5 p-4 rounded-xl border border-white/05 bg-white/02 focus-within:border-indigo-500/30 transition-all'>
+                                    <div className='mt-5 p-4 rounded-xl border border-gray-700 bg-white/02 focus-within:border-indigo-500/30 transition-all'>
                                         <div className='flex items-center gap-2.5 mb-3 text-[9px] font-black text-slate-400 uppercase tracking-widest'>
                                             <FontAwesomeIcon icon={faCreditCard} className='text-indigo-400' />
                                             Card Details

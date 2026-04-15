@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import CartItemsCard from '../components/CartItemsCard'
+import CartItemsCard from '../../components/user/CartItemsCard'
 import { useNavigate } from 'react-router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBagShopping, faArrowRight, faShoppingBag } from '@fortawesome/free-solid-svg-icons'
-import { api } from '../utils/api'
-import { setCart, updateLocalStorage } from '../features/CartSlice'
-import { fetchDraftCart } from '../store/cart/cartApi'
+import { api } from '../../utils/api'
+import { setCart, updateLocalStorage } from '../../features/CartSlice'
+import { fetchDraftCart } from '../../store/cart/cartApi'
 
 function Cart({ closePopUp }) {
   const navigate = useNavigate()

@@ -2,6 +2,7 @@ import { paymentCreateIntent } from "../services/payment.service.js"
 import { errorResponse, successResponse } from "../utils/response.js"
 import { stripe } from "../utils/stripe.js"
 import { Cart } from "../models/cart.model.js"
+import { generateOrderId } from "../services/cart.service.js"
 
 const createpaymetIntent = async (req, res) => {
     try {
@@ -39,11 +40,22 @@ const handleWebhook = async (req, res) => {
             const cartId = paymentIntent.metadata.cartId;
             if (cartId) {
                 try {
-                    await Cart.findByIdAndUpdate(cartId, {
-                        paymentStatus: 'completed',
-                        orderStatus: 'completed'
-                    });
-                    console.log(`Cart ${cartId} updated to completed via webhook.`);
+                    const cart = await Cart.findById(cartId);
+                    if (cart && !cart.orderId) {
+                        const newOrderId = await generateOrderId();
+                        await Cart.findByIdAndUpdate(cartId, {
+                            paymentStatus: 'completed',
+                            orderStatus: 'completed',
+                            orderId: newOrderId
+                        });
+                        console.log(`Cart ${cartId} updated to completed via webhook with orderId ${newOrderId}.`);
+                    } else if (cart) {
+                        await Cart.findByIdAndUpdate(cartId, {
+                            paymentStatus: 'completed',
+                            orderStatus: 'completed'
+                        });
+                        console.log(`Cart ${cartId} updated to completed via webhook.`);
+                    }
                 } catch (dbError) {
                     console.error("Error updating database from webhook:", dbError);
                 }

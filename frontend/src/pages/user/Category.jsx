@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams, Link } from 'react-router';
-import { addProducts } from '../features/ProductSlice';
-import Card from '../components/Card';
+import { addProducts } from '../../features/ProductSlice';
+import Card from '../../components/user/Card';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronLeft, faFaceFrown } from '@fortawesome/free-solid-svg-icons';
-import { api } from '../utils/api';
+import { api } from '../../utils/api';
 
 function Category() {
     const products = useSelector(state => state.product.products)
@@ -15,7 +15,7 @@ function Category() {
     useEffect(() => {
         const loadProducts = async () => {
             try {
-            const result = await api.get("/products/getProducts")
+                const result = await api.get("/products/getProducts")
                 if (result.status === 200) {
                     dispatch(addProducts(result.data.data));
                 }

@@ -1,33 +1,54 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router'
+import { Link, useLocation, useNavigate } from 'react-router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faEnvelope, faLock, faArrowRight, faShoppingBag, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
-import { api } from '../utils/api'
+import { api } from '../../utils/api'
 import { toast } from 'react-toastify'
+import { useDispatch, useSelector } from 'react-redux'
+import { setLoggedinUser } from '../../features/AuthSlice'
+import { clearCart } from '../../features/CartSlice'
 
-
-function ChangePassword() {
+function Login() {
     const { register, handleSubmit, formState: { errors } } = useForm()
     const [showPassword, setShowPassword] = useState(false)
     const navigate = useNavigate()
+    const dispatch = useDispatch()
+    const location = useLocation()
+    const guestCart = useSelector(state => state.cart.cartItems)
 
     const submitHandler = async (data) => {
         try {
-            const res = await api.patch("/auth/changePassword", data)
+            const res = await api.post("/auth/login", data)
             if (res.status === 200) {
-                toast.success(res.data.data.message || 'Password Changed successfully! 🎉', {
+                toast.success(res.data.data.message || 'Loggedin successfully! 🎉', {
                     theme: 'dark',
                     autoClose: 2500,
                 })
-                navigate('/login')
+                dispatch(setLoggedinUser(res.data.data))
+                if (guestCart && guestCart.length > 0) {
+                    const cartPayload = guestCart.map(item => ({
+                        product: item.product?._id || item.product,
+                        qty: item.qty,
+                        price: item.price
+                    }))
+                    const res = await api.post("/carts/mergeCart", {
+                        items: cartPayload
+                    })
+                    if (res.status === 200 || res.status === 201) {
+                        dispatch(clearCart())
+                    }
+                }
+                const from = location.state?.from || (res.data.data.isAdmin ? "/admin/dashboard" : "/");
+                navigate(from)
             } else {
                 toast.warning(res.data.data.message || 'Something went wrong', {
                     theme: 'dark',
                 })
             }
         } catch (error) {
-            const msg = error.response?.data?.message || 'change password failed. Please try again.'
+            console.log(error)
+            const msg = error.response?.data?.message || 'login failed. Please try again.'
             toast.error(msg, {
                 theme: 'dark',
                 autoClose: 3000,
@@ -81,10 +102,10 @@ function ChangePassword() {
                             {errors.email && <p className='text-red-400 text-xs font-semibold'>{errors.email.message}</p>}
                         </div>
 
-                        {/* old Password Field */}
+                        {/* Password Field */}
                         <div className='flex flex-col gap-2'>
-                            <label htmlFor="oldPassword" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
-                               Old Password
+                            <label htmlFor="password" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
+                                Password
                             </label>
                             <div className='relative'>
                                 <div className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-500'>
@@ -93,10 +114,10 @@ function ChangePassword() {
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     id="login-password"
-                                    placeholder='Enter old password'
+                                    placeholder='Enter your password'
                                     className='premium-input'
                                     style={{ paddingLeft: '2.75rem', paddingRight: '2.75rem' }}
-                                    {...register("oldPassword", { required: "Old Password is required" })}
+                                    {...register("password", { required: "Password is required" })}
                                 />
                                 <button
                                     type='button'
@@ -106,35 +127,7 @@ function ChangePassword() {
                                     <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className='text-sm' />
                                 </button>
                             </div>
-                            {errors.oldPassword && <p className='text-red-400 text-xs font-semibold'>{errors.oldPassword.message}</p>}
-                        </div>
-
-                        {/* New Password Field */}
-                        <div className='flex flex-col gap-2'>
-                            <label htmlFor="newPassword" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
-                                New Password
-                            </label>
-                            <div className='relative'>
-                                <div className='absolute left-4 top-1/2 -translate-y-1/2 text-slate-500'>
-                                    <FontAwesomeIcon icon={faLock} className='text-sm' />
-                                </div>
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    id="login-password"
-                                    placeholder='Enter new password'
-                                    className='premium-input'
-                                    style={{ paddingLeft: '2.75rem', paddingRight: '2.75rem' }}
-                                    {...register("newPassword", { required: "New Password is required" })}
-                                />
-                                <button
-                                    type='button'
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className='absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 transition-colors'
-                                >
-                                    <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} className='text-sm' />
-                                </button>
-                            </div>
-                            {errors.newPassword && <p className='text-red-400 text-xs font-semibold'>{errors.newPassword.message}</p>}
+                            {errors.password && <p className='text-red-400 text-xs font-semibold'>{errors.password.message}</p>}
                         </div>
 
                         {/* Submit Button */}
@@ -142,11 +135,31 @@ function ChangePassword() {
                             type='submit'
                             className='btn-premium w-full py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-3 group shadow-xl shadow-indigo-600/20 mt-2'
                         >
-                            Submit
+                            Sign In
                             <FontAwesomeIcon icon={faArrowRight} className='group-hover:translate-x-1.5 transition-transform' />
                         </button>
                     </form>
 
+                    {/* Divider */}
+                    <div className='flex items-center gap-4 my-8'>
+                        <div className='h-px flex-1 bg-gradient-to-r from-transparent to-white/08' />
+                        <span className='text-xs text-slate-600 font-bold uppercase tracking-widest'>or</span>
+                        <div className='h-px flex-1 bg-gradient-to-l from-transparent to-white/08' />
+                    </div>
+
+                    {/* Register Link */}
+                    <p className='text-center text-slate-400 text-sm'>
+                        Don't have an account?{' '}
+                        <Link to='/register' className='text-indigo-400 font-bold hover:text-indigo-300 transition-colors'>
+                            Create Account
+                        </Link>
+                    </p>
+                    <p className='text-center text-slate-400 text-sm'>
+                        Forgot Password?{' '}
+                        <Link to='/changePassword' className='text-indigo-400 font-bold hover:text-indigo-300 transition-colors'>
+                            Change Password
+                        </Link>
+                    </p>
                 </div>
 
                 {/* Bottom text */}
@@ -158,4 +171,4 @@ function ChangePassword() {
     )
 }
 
-export default ChangePassword
+export default Login

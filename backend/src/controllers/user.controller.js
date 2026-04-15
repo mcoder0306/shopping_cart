@@ -1,4 +1,4 @@
-import { addUserAddress, deleteUserAddress, deleteUserProfileImage, getUser, getUserAddresses, updateUserAddress, updateUserDetails } from "../services/user.service.js";
+import { addUserAddress, deleteUserAddress, deleteUserProfileImage, getUser, getUserAddresses, toggleUserStatus, updateUserAddress, updateUserDetails } from "../services/user.service.js";
 import { errorResponse, successResponse } from "../utils/response.js";
 
 const logout = async (req, res) => {
@@ -118,4 +118,18 @@ const deleteProfileImage = async (req, res) => {
     }
 }
 
-export { logout, updateDetails, getUserById, addAddress, updateAddress, deleteAddress, getAllAddresses, deleteProfileImage }
+const handleToggleStatus = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const response = await toggleUserStatus(id);
+        if (response.status === 200) {
+            return successResponse(res, response.status, response.message, response.user)
+        } else {
+            return errorResponse(res, response.status, response.message)
+        }
+    } catch (error) {
+        return errorResponse(res, 400, "error toggling user status", error)
+    }
+}
+
+export { logout, updateDetails, getUserById, addAddress, updateAddress, deleteAddress, getAllAddresses, deleteProfileImage, handleToggleStatus }

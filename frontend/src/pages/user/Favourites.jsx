@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { toast } from 'react-toastify'
-import { api } from '../utils/api'
-import Card from '../components/Card'
+import { api } from '../../utils/api'
+import Card from '../../components/user/Card'
 import { Oval } from 'react-loader-spinner'
 
 function Favourites() {

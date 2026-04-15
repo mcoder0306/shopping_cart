@@ -1,19 +1,20 @@
 import React from 'react'
-import { api } from '../utils/api'
+import { api } from '../../utils/api'
 import { toast } from 'react-toastify'
 
-function DeleteConfirmation({ popup, setPopup }) {
+function DeleteConfirmation({ popup, setPopup, setRefresh }) {
     const handleDelete = async (data) => {
         try {
             let res
-            if(data.product){
+            if (data.product) {
                 res = await api.delete(`/products/deleteProduct/${data.product}`)
             }
-            else{
+            else {
                 res = await api.delete(`/categories/deleteCategory/${data.category}`)
             }
             if (res.status === 200) {
                 setPopup({ type: null, data: null })
+                setRefresh && setRefresh(prev => prev + 1)
                 toast.success(res.data.data.message || 'item deleted successfully', {
                     theme: 'dark',
                 })
@@ -26,7 +27,7 @@ function DeleteConfirmation({ popup, setPopup }) {
     }
     return (
         <div className="p-6 text-center">
-            <h2 className="text-white text-lg font-bold mb-4">Delete Product?</h2>
+            <h2 className="text-white text-lg font-bold mb-4">Delete {popup.data?.product ? "Product" : "Category"}?</h2>
             <p className="text-slate-400 mb-6">This cannot be undone.</p>
 
             <div className="flex justify-center gap-4">

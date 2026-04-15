@@ -211,6 +211,11 @@ const updateCart = async (data) => {
     };
     cart.shippingAddress = shippingAddress
     cart.total = total
+
+    if (orderStatus === "completed" && !cart.orderId) {
+        cart.orderId = await generateOrderId();
+    }
+
     await cart.save({ validateBeforeSave: false })
     await cart.populate({ path: 'items.product', populate: { path: 'category' } })
 
@@ -235,4 +240,20 @@ const getCords = async ({ orderId }) => {
 
 }
 
-export { addProductToCart, deletProductFromCart, getUserCart, mergeGuestCart, updateCart, getCords }
+const generateOrderId = async () => {
+    const lastOrder = await Cart.findOne({ orderId: { $ne: null } })
+        .sort({ createdAt: -1 })
+        .select('orderId')
+        .lean();
+
+    let nextNum = 1;
+    if (lastOrder && lastOrder.orderId) {
+        const match = lastOrder.orderId.match(/\d+/);
+        if (match) {
+            nextNum = parseInt(match[0], 10) + 1;
+        }
+    }
+    return `#ORD${nextNum.toString().padStart(3, '0')}`;
+};
+
+export { addProductToCart, deletProductFromCart, getUserCart, mergeGuestCart, updateCart, getCords, generateOrderId }

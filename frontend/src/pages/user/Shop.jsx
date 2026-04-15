@@ -1,38 +1,38 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { addProducts } from '../features/ProductSlice';
-import Card from '../components/Card';
+import { addProducts } from '../../features/ProductSlice';
+import Card from '../../components/user/Card';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faStore } from '@fortawesome/free-solid-svg-icons';
-import { api } from '../utils/api';
+import { api } from '../../utils/api';
 
 function Shop() {
   const products = useSelector(state => state.product.products)
   const dispatch = useDispatch();
   const categories = [...new Set(products?.map(product => product?.category?.title))]
-  const urlParams=new URLSearchParams(location.search)
-  const query=urlParams.get("search")
+  const urlParams = new URLSearchParams(location.search)
+  const query = urlParams.get("search")
 
   useEffect(() => {
     const loadProducts = async () => {
-         try {
-           let result 
-           if(query){
-             result= await api.get(`/products/getProducts?query=${query}`)
-           }
-           else{
-             result= await api.get("/products/getProducts")
-           }
-           if (result.status === 200) {
-             dispatch(addProducts(result.data.data));
-           }
-         } catch (error) {
-           console.log("error in loadproducts!!", error)
-         }
-   
-       }
-       loadProducts()
-  }, [dispatch,query]);
+      try {
+        let result
+        if (query) {
+          result = await api.get(`/products/getProducts?query=${query}`)
+        }
+        else {
+          result = await api.get("/products/getProducts")
+        }
+        if (result.status === 200) {
+          dispatch(addProducts(result.data.data));
+        }
+      } catch (error) {
+        console.log("error in loadproducts!!", error)
+      }
+
+    }
+    loadProducts()
+  }, [dispatch, query]);
 
   return (
     <div className='max-w-7xl mx-auto px-6 pt-36 pb-24'>

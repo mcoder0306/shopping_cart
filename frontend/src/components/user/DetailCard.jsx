@@ -1,11 +1,11 @@
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { addTocart, decreaceQty, increaceQty, removeFromCart, updateLocalStorage } from '../features/CartSlice';
+import { addTocart, decreaceQty, increaceQty, removeFromCart, updateLocalStorage } from '../../features/CartSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus, faMinus, faShieldHalved, faTruckFast, faCircleCheck, faStar } from '@fortawesome/free-solid-svg-icons';
-import { api } from '../utils/api';
-import { fetchDraftCart } from '../store/cart/cartApi';
+import { api } from '../../utils/api';
+import { fetchDraftCart } from '../../store/cart/cartApi';
 
 function DetailCard({ product }) {
     const dispatch = useDispatch()
@@ -130,10 +130,7 @@ function DetailCard({ product }) {
                     />
                 </div>
                 {/* Authenticity badge */}
-                <div className='absolute bottom-6 left-6 glass text-slate-800 px-4 py-2 rounded-xl text-xs font-black shadow-xl flex items-center gap-2 bg-white border border-slate-200'>
-                    <FontAwesomeIcon icon={faCircleCheck} className='text-emerald-500' />
-                    100% Authentic
-                </div>
+               
                 {/* Discount badge */}
                 {/* <div className='absolute top-6 right-6 w-14 h-14 rounded-2xl bg-indigo-500 flex flex-col items-center justify-center shadow-xl shadow-indigo-500/30'>
                     <span className='text-white font-black text-xs'>SAVE</span>
@@ -196,27 +193,34 @@ function DetailCard({ product }) {
 
                 {/* Action */}
                 <div className='mt-auto pt-6 border-t border-white/05'>
-                    {existing?.qty > 0 ? (
-                        <div className='flex items-center gap-4'>
-                            <div className='flex items-center gap-4 bg-slate-800 rounded-2xl p-2 border border-slate-700'>
-                                <button onClick={handleDecreaseQty} className='w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-700 transition-colors'>
-                                    <FontAwesomeIcon icon={faMinus} />
+                    {
+                         product.stock === 0 ? (
+                            <div className='text-gray-400 rounded-xl'>Out of Stock</div>
+                        ) :
+                        (
+                            existing?.qty > 0 ? (
+                                <div className='flex items-center gap-4'>
+                                    <div className='flex items-center gap-4 bg-slate-800 rounded-2xl p-2 border border-slate-700'>
+                                        <button onClick={handleDecreaseQty} className='w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-700 transition-colors'>
+                                            <FontAwesomeIcon icon={faMinus} />
+                                        </button>
+                                        <span className='w-8 text-center font-black text-xl'>{existing.qty}</span>
+                                        <button onClick={handleIncreaseQty} className='w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-700 transition-colors disabled:cursor-not-allowed' disabled={existing.qty >= product.stock}>
+                                            <FontAwesomeIcon icon={faPlus} />
+                                        </button>
+                                    </div>
+                                    {/* <span className='text-slate-400 text-sm font-semibold'>{existing.qty} in bag</span> */}
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={handleAddToCart}
+                                    className='btn-premium w-full py-5 rounded-2xl font-extrabold text-lg shadow-2xl shadow-indigo-600/30'
+                                >
+                                    Add to Bag
                                 </button>
-                                <span className='w-8 text-center font-black text-xl'>{existing.qty}</span>
-                                <button onClick={handleIncreaseQty} className='w-12 h-12 rounded-xl flex items-center justify-center hover:bg-slate-700 transition-colors'>
-                                    <FontAwesomeIcon icon={faPlus} />
-                                </button>
-                            </div>
-                            {/* <span className='text-slate-400 text-sm font-semibold'>{existing.qty} in bag</span> */}
-                        </div>
-                    ) : (
-                        <button
-                            onClick={handleAddToCart}
-                            className='btn-premium w-full py-5 rounded-2xl font-extrabold text-lg shadow-2xl shadow-indigo-600/30'
-                        >
-                            Add to Bag
-                        </button>
-                    )}
+                            )
+                        )
+                    }
                 </div>
             </div>
         </div>

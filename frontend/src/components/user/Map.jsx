@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { MapContainer, Marker, Polyline, TileLayer } from "react-leaflet"
 import { toast } from "react-toastify";
-import { api } from "../utils/api";
+import { api } from "../../utils/api";
 import { useParams } from "react-router";
 import { Oval } from "react-loader-spinner";
 
@@ -73,7 +73,7 @@ function Map() {
             />
             <Polyline positions={routes} />
             {
-                routes.map((r,index) => (
+                routes.map((r, index) => (
                     <Marker position={r} key={index}></Marker>
 
                 ))

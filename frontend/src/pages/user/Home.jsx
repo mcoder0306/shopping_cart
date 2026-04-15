@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
-import Card from '../components/Card';
+import Card from '../../components/user/Card';
 import { useDispatch, useSelector } from 'react-redux'
-import { addProducts } from '../features/ProductSlice';
-import CategoryCard from '../components/CategoryCard';
+import { addProducts } from '../../features/ProductSlice';
+import CategoryCard from '../../components/user/CategoryCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight, faTruck, faShieldHalved, faHeadset, faTag } from '@fortawesome/free-solid-svg-icons';
 import { Link } from 'react-router';
-import { api } from '../utils/api';
+import { api } from '../../utils/api';
 import { toast } from 'react-toastify';
 import { Oval } from 'react-loader-spinner';
 
@@ -19,7 +19,7 @@ function Home() {
 
   const categories = [...new Set(products?.map(product => product.category?.title).filter(Boolean))]
   const featuredProducts = products?.slice(0, 4);
-  const featuredCategories=categories?.slice(0,4)
+  const featuredCategories = categories?.slice(0, 4)
 
   useEffect(() => {
     const loadProducts = async () => {

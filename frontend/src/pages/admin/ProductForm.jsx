@@ -1,46 +1,43 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { api } from '../utils/api'
+import { useOutletContext } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import { api } from '../../utils/api'
 
-function ProductForm({ popup, setPopup }) {
-    const { register, handleSubmit, formState: { errors }, reset } = useForm()
-    const [categories, setCategories] = useState([])
+function ProductForm({ popup, setPopup, setRefresh }) {
+    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm()
+    const { dashboardData } = useOutletContext()
+    const categories = dashboardData?.categories || []
+    const [preview, setPreview] = useState(null)
+    const selectedImage = watch("image")
 
     useEffect(() => {
-        const fetchCategories = async () => {
-            try {
-                const res = await api.get('/categories/getAllCategories')
-                if (res.status === 200) {
-                    setCategories(res.data.data)
+        if (popup.data && dashboardData) {
+            const product = dashboardData.products.find(p => p._id === popup.data)
+            if (product) {
+                reset({
+                    title: product.title,
+                    description: product.description,
+                    price: product.price,
+                    stock: product.stock,
+                    category: product.category?._id || ''
+                })
+                if (product.image) {
+                    setPreview(`http://localhost:3000/${product.image.replace('uploads/', '')}`)
                 }
-            } catch (error) {
-                console.error("Failed to fetch categories", error)
+            } else {
+                toast.error("Product not found in local data")
             }
         }
-        fetchCategories()
+    }, [popup.data, reset, dashboardData])
 
-        if (popup.data) {
-            const fetchProduct = async () => {
-                try {
-                    const res = await api.get(`/products/getProducts?id=${popup.data}`)
-                    if (res.status === 200 && res.data.data.length > 0) {
-                        const product = res.data.data[0]
-                        reset({
-                            title: product.title,
-                            description: product.description,
-                            price: product.price,
-                            stock: product.stock,
-                            category: product.category._id
-                        })
-                    }
-                } catch (error) {
-                    toast.error("Failed to load product data")
-                }
-            }
-            fetchProduct()
+    useEffect(() => {
+        if (selectedImage && selectedImage[0]) {
+            const objectUrl = URL.createObjectURL(selectedImage[0])
+            setPreview(objectUrl)
+            return () => URL.revokeObjectURL(objectUrl)
         }
-    }, [popup.data, reset])
+    }, [selectedImage])
 
     const submitHandler = async (data) => {
         try {
@@ -68,6 +65,7 @@ function ProductForm({ popup, setPopup }) {
             if (res.status === 200 || res.status === 201) {
                 toast.success(`Product ${popup.data ? 'updated' : 'added'} successfully`, { theme: 'dark' })
                 setPopup({ type: null, data: null })
+                setRefresh && setRefresh(prev => prev + 1)
             }
         } catch (error) {
             toast.error(error.response?.data?.message || "Something went wrong", { theme: 'dark' })
@@ -75,8 +73,8 @@ function ProductForm({ popup, setPopup }) {
     }
 
     return (
-        <div className='glass rounded-3xl p-8 md:p-10 border border-white/05 animate-slide-up'>
-            <h1 className='text-2xl text-gray-300 text-center p-3 m-2'>{popup.data ? "Edit" : "Add"} Product</h1>
+        <div className='glass rounded-3xl p-6 sm:p-8 md:p-10 border border-white/05 animate-slide-up'>
+            <h1 className='text-xl md:text-2xl font-black text-white text-center mb-6 uppercase tracking-tight'>{popup.data ? "Edit" : "Add"} Product</h1>
             <form onSubmit={handleSubmit(submitHandler)} className='flex flex-col gap-6'>
 
                 {/* Title */}
@@ -89,7 +87,6 @@ function ProductForm({ popup, setPopup }) {
                         id="title"
                         placeholder='Enter Product title'
                         className='premium-input'
-                        style={{ paddingLeft: '2.75rem' }}
                         {...register("title", { required: "title is required" })}
                     />
                     {errors.title && <p className='text-red-400 text-xs font-semibold'>{errors.title.message}</p>}
@@ -104,7 +101,6 @@ function ProductForm({ popup, setPopup }) {
                         id="description"
                         placeholder='Enter Product description'
                         className='premium-input min-h-[100px] py-3'
-                        style={{ paddingLeft: '2.75rem' }}
                         {...register("description", { required: "description is required" })}
                     />
                     {errors.description && <p className='text-red-400 text-xs font-semibold'>{errors.description.message}</p>}
@@ -123,7 +119,6 @@ function ProductForm({ popup, setPopup }) {
                             step={0.01}
                             placeholder='Enter Product Price'
                             className='premium-input w-full'
-                            style={{ paddingLeft: '2.75rem' }}
                             {...register("price", {
                                 valueAsNumber: true,
                                 required: "Price is required",
@@ -145,10 +140,9 @@ function ProductForm({ popup, setPopup }) {
                             min={0}
                             placeholder='Enter Product stock'
                             className='premium-input w-full'
-                            style={{ paddingLeft: '2.75rem' }}
                             {...register("stock", {
                                 required: "stock is required",
-                                min: { value: 0, message: "Stock cannot be negative" },
+                                min: { value: 1, message: "Stock must be at least 1" },
                                 valueAsNumber: true,
                                 validate: (value) =>
                                     Number.isInteger(value) || "Stock must be an integer"
@@ -170,9 +164,13 @@ function ProductForm({ popup, setPopup }) {
                             type="file"
                             id="image"
                             className='premium-input file:hidden pt-3'
-                            style={{ paddingLeft: '1rem' }}
                             {...register("image", { required: !popup.data ? "image is required" : false })}
                         />
+                        {preview && (
+                            <div className="mt-2 w-full h-32 rounded-xl border border-white/10 overflow-hidden bg-white/05 flex items-center justify-center">
+                                <img src={preview} alt="Preview" className="h-full w-full object-contain" />
+                            </div>
+                        )}
                         {errors.image && <p className='text-red-400 text-xs font-semibold'>{errors.image.message}</p>}
                     </div>
 
@@ -184,7 +182,6 @@ function ProductForm({ popup, setPopup }) {
                         <select
                             id="category"
                             className='premium-input w-full bg-transparent'
-                            style={{ paddingLeft: '1rem' }}
                             {...register("category", { required: "category is required" })}
                         >
                             <option value="" className="bg-slate-900">Select Category</option>

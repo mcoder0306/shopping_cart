@@ -7,11 +7,11 @@ import {
     faMapMarkerAlt, faPlus, faTrashAlt, faEdit, faHome,
     faBriefcase, faMapPin, faCheckCircle, faPhone, faCompass, faXmark
 } from '@fortawesome/free-solid-svg-icons'
-import { api } from '../utils/api'
+import { api } from '../../utils/api'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from 'react-redux'
-import { setLoggedinUser } from '../features/AuthSlice'
-import PopUp from '../components/Popup'
+import { setLoggedinUser } from '../../features/AuthSlice'
+import PopUp from '../../components/user/Popup'
 
 function Profile() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm()
@@ -252,7 +252,7 @@ function Profile() {
                                             ) : user?.image ? (
                                                 <img src={`http://localhost:3000/${user.image?.replace('uploads/', '')}`} alt="profile image" className='w-full h-full object-cover' />
                                             ) : (
-                                                <FontAwesomeIcon icon={faUser} />
+                                                <span className="text-6xl font-black text-indigo-400 uppercase">{user.name?.charAt(0)}</span>
                                             )
                                         }
                                         <input type="file" accept="image/*" ref={fileInputRef} className="hidden" onChange={handleImageChange} />
@@ -275,7 +275,7 @@ function Profile() {
                                 </div>
                                 <div className='text-center'>
                                     <h3 className='text-white font-black text-2xl'>{user?.name}</h3>
-                                    <p className='text-indigo-400 font-bold text-xs uppercase tracking-[0.2em] mt-1'>{user?.isAdmin ? 'Administrator' : 'Premium Member'}</p>
+                                    <p className='text-indigo-400 font-bold text-xs uppercase tracking-[0.2em] mt-1'>{user?.isAdmin ? 'Administrator' : 'Customer'}</p>
                                 </div>
                             </div>
 

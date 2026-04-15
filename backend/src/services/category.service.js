@@ -69,7 +69,6 @@ const categoryGet = async (data) => {
     if (id) {
         filter._id = new mongoose.Types.ObjectId(id)
     }
-    filter.isActive = true
     const categories = await Category.find(filter)
     if (!categories) {
         return { status: 404, message: "categories not found!!" }

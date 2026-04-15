@@ -35,6 +35,11 @@ const cartSchema = new Schema({
         type: String,
         enum: ["draft", "completed"]
     },
+    orderId: {
+        type: String,
+        unique: true,
+        sparse: true
+    },
     sourceCords: {
         lat: Number,
         lng: Number

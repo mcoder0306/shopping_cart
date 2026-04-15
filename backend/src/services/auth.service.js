@@ -63,6 +63,11 @@ const loginUser = async (data) => {
     if (!user) {
         return { status: 404, message: "user not found!!" }
     }
+
+    if (user.isActive === false) {
+        return { status: 403, message: "Your account is inactive. Please contact admin." }
+    }
+
     const verifyPassword = await bcrypt.compare(password, user.password);
 
     if (!verifyPassword) {

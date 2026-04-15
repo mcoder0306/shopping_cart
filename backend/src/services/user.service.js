@@ -150,4 +150,14 @@ const getUserAddresses = async (userId) => {
     return { status: 200, message: "address fetched successfully", addresses: addresses }
 }
 
-export { getUser, updateUserDetails, deleteUserProfileImage, addUserAddress, updateUserAddress, deleteUserAddress, getUserAddresses }
+const toggleUserStatus = async (id) => {
+    const user = await User.findById(id);
+    if (!user) {
+        return { status: 404, message: "user not found!!" }
+    }
+    user.isActive = !user.isActive;
+    await user.save({ validateBeforeSave: false });
+    return { status: 200, message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`, user: user }
+}
+
+export { getUser, updateUserDetails, deleteUserProfileImage, addUserAddress, updateUserAddress, deleteUserAddress, getUserAddresses, toggleUserStatus }

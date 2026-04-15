@@ -4,12 +4,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faBars, faShoppingCart, faBagShopping, faUser, faXmark, faStore, faSearch, faHome, faBoxArchive, faHeart, faArrowRightFromBracket } from '@fortawesome/free-solid-svg-icons'
 import PopUp from './Popup';
 import { useDispatch, useSelector } from 'react-redux';
-import Cart from '../pages/Cart';
-import { api } from '../utils/api';
-import { logoutUser } from '../features/AuthSlice';
+import Cart from '../../pages/user/Cart';
+import { api } from '../../utils/api';
+import { logoutUser } from '../../features/AuthSlice';
 import { toast } from 'react-toastify'
-import { setLoggedinUser } from '../features/AuthSlice';
-import { clearCart } from '../features/CartSlice'
+import { setLoggedinUser } from '../../features/AuthSlice';
+import { clearCart } from '../../features/CartSlice'
 
 function Navbar() {
   const [openPopup, setOpenPopup] = useState(null);
@@ -161,11 +161,11 @@ function Navbar() {
               isLoggedin && (
                 <div className='relative user-menu' ref={userMenuRef}>
                   <button className='flex items-center gap-3 p-1 pl-1 pr-3 hover:bg-white/5 rounded-full hover:border-white/10 transition-all duration-300 group' onClick={() => setOpenUserMenu(prev => !prev)}>
-                    <div className='w-9 h-9 rounded-full overflow-hidden flex items-center justify-center bg-gradient-to-tr from-indigo-500/20 to-violet-500/20 border border-indigo-500/30 group-hover:border-indigo-500/60 transition-all duration-500 shadow-lg'>
+                    <div className='w-9 h-9 rounded-full overflow-hidden flex items-center justify-center bg-indigo-500/10 border border-indigo-500/30 group-hover:border-indigo-500/60 transition-all duration-500 shadow-lg'>
                       {user?.image ? (
                         <img src={`http://localhost:3000/${user.image?.replace('uploads/', '')}`} alt="profile" className='w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500' />
                       ) : (
-                        <FontAwesomeIcon icon={faUser} className='text-xs text-indigo-400 group-hover:text-white transition-colors' />
+                        <span className="text-indigo-400 font-bold text-xs uppercase group-hover:text-white transition-colors">{user.name?.charAt(0)}</span>
                       )}
                     </div>
                     <span className='text-sm font-bold text-slate-300 group-hover:text-white transition-colors max-w-[100px] truncate'>
@@ -259,7 +259,7 @@ function Navbar() {
                     {user?.image ? (
                       <img src={`http://localhost:3000/${user.image?.replace('uploads/', '')}`} alt="profile" className='w-full h-full object-cover' />
                     ) : (
-                      <FontAwesomeIcon icon={faUser} className='text-indigo-400' />
+                      <span className="text-indigo-400 font-bold text-sm uppercase">{user.name?.charAt(0)}</span>
                     )}
                   </div>
                   <div>

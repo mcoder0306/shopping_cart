@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { addTocart, decreaceQty, increaceQty, removeFromCart, updateLocalStorage } from '../features/CartSlice'
+import { addTocart, decreaceQty, increaceQty, removeFromCart, updateLocalStorage } from '../../features/CartSlice'
 import { Bounce, toast } from 'react-toastify'
 import PopUp from './Popup'
 import DetailCard from './DetailCard'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faPlus, faMinus, faInfoCircle, faStar, faHeart } from '@fortawesome/free-solid-svg-icons'
-import { api } from '../utils/api'
-import { fetchDraftCart } from '../store/cart/cartApi'
+import { api } from '../../utils/api'
+import { fetchDraftCart } from '../../store/cart/cartApi'
 
-function Card({ product, favourites,onRemoveFavourite }) {
+function Card({ product, favourites, onRemoveFavourite }) {
     const dispatch = useDispatch()
     const [openPopup, setOpenPopup] = useState(null);
     const [wishlisted, setWishlisted] = useState(false);
@@ -31,7 +31,7 @@ function Card({ product, favourites,onRemoveFavourite }) {
             }
             else {
                 setWishlisted(prev => !prev);
-                 onRemoveFavourite && onRemoveFavourite(product._id);
+                onRemoveFavourite && onRemoveFavourite(product._id);
                 toast.warning(res.data.data.message || 'Product removed from favourite! ', {
                     theme: 'dark',
                     autoClose: 2500,
@@ -161,7 +161,7 @@ function Card({ product, favourites,onRemoveFavourite }) {
     return (
         <div className='glass-hover rounded-3xl p-5 h-full flex flex-col glass border border-white/05 relative group product-card'>
             {/* Action Buttons */}
-            <div className='absolute top-4 right-4 z-10 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0'>
+            <div className='absolute top-4 right-4 z-10 flex flex-col gap-2 opacity-100 lg:opacity-0 group-hover:opacity-100 transition-all duration-300 lg:translate-y-2 group-hover:translate-y-0'>
                 <button
                     onClick={() => setOpenPopup("detailpopup")}
                     className='w-9 h-9 rounded-full glass border border-white/10 flex items-center justify-center hover:bg-indigo-500 hover:border-indigo-500 transition-all text-sm'
@@ -236,7 +236,7 @@ function Card({ product, favourites,onRemoveFavourite }) {
                                 ) : (
                                     <button
                                         onClick={() => handleAddToCart(1)}
-                                        className='btn-premium px-5 py-2 rounded-full text-sm font-bold flex-shrink-0'
+                                        className='btn-premium px-5 py-2 rounded-full text-sm font-bold shrink-0'
                                     >
                                         Add to Bag
                                     </button>

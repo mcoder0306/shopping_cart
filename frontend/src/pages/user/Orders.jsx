@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import OrderCard from '../components/OrderCard'
+import OrderCard from '../../components/user/OrderCard'
 import { Link } from 'react-router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChevronLeft, faBoxArchive, faTruck, faMobileScreenButton, faCreditCard } from '@fortawesome/free-solid-svg-icons'
-import { api } from '../utils/api'
+import { api } from '../../utils/api'
 import { useState } from 'react'
 import { Oval } from 'react-loader-spinner'
 import { toast } from 'react-toastify'
-import { fetchCompletedCart } from '../store/cart/cartApi'
+import { fetchCompletedCart } from '../../store/cart/cartApi'
 
 const paymentIcons = {
     cod: faTruck,
@@ -104,7 +104,7 @@ function Orders() {
                                                         </div>
                                                         <div>
                                                             <p className='text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1'>Order ID</p>
-                                                            <p className='font-bold text-slate-300'>#{orderitem._id}</p>
+                                                            <p className='font-bold text-slate-300'>{orderitem.orderId}</p>
                                                         </div>
                                                         <div>
                                                             <p className='text-[10px] uppercase font-black text-slate-500 tracking-widest mb-1'>Payment</p>

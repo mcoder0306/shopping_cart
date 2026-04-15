@@ -2,8 +2,8 @@ import { faTrashCan, faPlus, faMinus } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { removeFromCart, increaceQty, decreaceQty, updateLocalStorage } from '../features/CartSlice'
-import { api } from '../utils/api'
+import { removeFromCart, increaceQty, decreaceQty, updateLocalStorage } from '../../features/CartSlice'
+import { api } from '../../utils/api'
 import { toast } from 'react-toastify'
 
 function CartItemsCard({ item, cartItems }) {

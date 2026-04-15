@@ -3,11 +3,11 @@ import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faUser, faEnvelope, faLock, faShieldHalved, faArrowRight, faShoppingBag, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons'
-import { api } from '../utils/api'
+import { api } from '../../utils/api'
 import { toast } from 'react-toastify'
 import { useDispatch, useSelector } from "react-redux"
-import { setLoggedinUser } from '../features/AuthSlice'
-import { clearCart } from '../features/CartSlice'
+import { setLoggedinUser } from '../../features/AuthSlice'
+import { clearCart } from '../../features/CartSlice'
 
 function Register() {
   const { register, handleSubmit, formState: { errors }, watch } = useForm()

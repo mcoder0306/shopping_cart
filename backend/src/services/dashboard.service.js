@@ -39,8 +39,23 @@ const getData = async (userId) => {
             categories: categories,
             products: products,
             orders: orders,
+            users: users
         }
     }
 
 }
-export { getData }
+const getOrderById = async (userId, orderId) => {
+    const user = await User.findById(userId)
+    if (!user.isAdmin) {
+        return { status: 401, message: "you dont have access to this page!!" }
+    }
+
+    const order = await Cart.findById(orderId).populate('items.product').populate('user');
+    if (!order) {
+        return { status: 404, message: "order not found" }
+    }
+
+    return { status: 200, message: "order fetched", data: order }
+}
+
+export { getData, getOrderById }

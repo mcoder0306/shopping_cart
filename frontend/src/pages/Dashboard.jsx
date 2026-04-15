@@ -20,11 +20,11 @@ import { useEffect } from 'react'
 import { api } from '../utils/api'
 import { toast } from 'react-toastify'
 import { Oval } from 'react-loader-spinner'
-import PopUp from '../components/Popup'
-import DetailCard from '../components/DetailCard'
-import CategoryForm from './CategoryForm'
-import DeleteConfirmation from './DeleteConfirmation'
-import ProductForm from './ProductForm'
+import PopUp from '../components/user/Popup'
+import DetailCard from '../components/user/DetailCard'
+import CategoryForm from './admin/CategoryForm'
+import DeleteConfirmation from './admin/DeleteConfirmation'
+import ProductForm from './admin/ProductForm'
 
 function Dashboard() {
     const [activeTab, setActiveTab] = useState('Overview')

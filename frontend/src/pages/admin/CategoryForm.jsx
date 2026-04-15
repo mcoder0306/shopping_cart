@@ -1,10 +1,24 @@
 import React, { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
-import { api } from '../utils/api'
+import { api } from '../../utils/api'
+import { useOutletContext } from 'react-router-dom'
 
-function CategoryForm({ popup, setPopup }) {
+function CategoryForm({ popup, setPopup, setRefresh }) {
     const { register, handleSubmit, formState: { errors }, reset } = useForm()
+    const { dashboardData } = useOutletContext()
+
+    useEffect(() => {
+        if (popup.data && dashboardData) {
+            const category = dashboardData.categories.find(c => c._id === popup.data)
+            if (category) {
+                reset({
+                    title: category.title
+                })
+            }
+        }
+    }, [popup.data, reset, dashboardData])
+
     const submitHandler = async (data) => {
         try {
             let res;
@@ -20,32 +34,21 @@ function CategoryForm({ popup, setPopup }) {
             }
             if (res.status === 201 || res.status == 200) {
                 setPopup({ type: null, data: null })
-                toast.success(res.data.data.message || `category ${popup.data ? "updated" : "added"} successfully`, {
+                setRefresh && setRefresh()
+                toast.success(res.data.message || `category ${popup.data ? "updated" : "added"} successfully`, {
                     theme: 'dark',
                 })
             }
 
         } catch (error) {
-            if (error.status === 409) {
-                toast.warning('category already exists!!', {
-                    theme: 'dark',
-                })
-            }
-            toast.warning(error || 'Something went wrong', {
+            toast.warning(error.response?.data?.message || 'Something went wrong', {
                 theme: 'dark',
             })
         }
     }
-    useEffect(() => {
-        const loadData = async () => {
-            const res = await api.get(`/categories/getAllCategories?id=${popup.data}`)
-            reset(res.data.data[0])
-        }
-        popup.data && loadData()
-    }, [])
     return (
-        <div className='glass rounded-3xl p-8 md:p-10 border border-white/05 animate-slide-up'>
-            <h1 className='text-2xl text-gray-300 text-center p-3 m-2'>{popup.data ? "Edit" : "Add"} Category</h1>
+        <div className='glass rounded-3xl p-6 sm:p-8 md:p-10 border border-white/05 animate-slide-up'>
+            <h1 className='text-xl md:text-2xl font-black text-white text-center mb-6 uppercase tracking-tight'>{popup.data ? "Edit" : "Add"} Category</h1>
             <form onSubmit={handleSubmit(submitHandler)} className='flex flex-col gap-6'>
 
                 {/* Title Field */}
@@ -58,7 +61,6 @@ function CategoryForm({ popup, setPopup }) {
                         id="title"
                         placeholder='Enter category title'
                         className='premium-input'
-                        style={{ paddingLeft: '2.75rem' }}
                         {...register("title", { required: "title is required" })}
                     />
                     {errors.title && <p className='text-red-400 text-xs font-semibold'>{errors.title.message}</p>}
