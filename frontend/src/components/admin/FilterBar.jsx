@@ -42,8 +42,8 @@ function CustomSelect({ filter }) {
                                 setIsOpen(false);
                             }}
                             className={`w-full text-left px-4 py-2 text-xs font-bold transition-colors ${filter.value === opt.value
-                                    ? 'bg-indigo-600/20 text-indigo-400'
-                                    : 'text-slate-300 hover:bg-white/05 hover:text-white'
+                                ? 'bg-indigo-600/20 text-indigo-400'
+                                : 'text-slate-300 hover:bg-white/05 hover:text-white'
                                 }`}
                         >
                             {opt.label}

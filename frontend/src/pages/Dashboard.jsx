@@ -211,7 +211,7 @@ function Dashboard() {
                                     <td className="px-8 py-4 text-slate-300 text-sm">{product.category.title}</td>
                                     <td className="px-8 py-4 text-center text-white font-black text-sm">${product.price}</td>
                                     <td className="px-8 py-4 text-center">
-                                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black border tracking-wider ${product.stock < 15 ? 'border-rose-500/30 text-rose-500 bg-rose-500/05' : 'border-emerald-500/30 text-emerald-500 bg-emerald-500/05'}`}>
+                                        <span className={`px-2 py-1 rounded-lg text-[10px] font-black border tracking-wider ${product.stock < 10 ? 'border-rose-500/30 text-rose-500 bg-rose-500/05' : 'border-emerald-500/30 text-emerald-500 bg-emerald-500/05'}`}>
                                             {product.stock} units
                                         </span>
                                     </td>
