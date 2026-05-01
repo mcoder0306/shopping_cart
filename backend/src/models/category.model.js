@@ -6,11 +6,7 @@ const categorySchema=new Schema({
         required:true,
         unique:true
     },
-     name:{
-        type:String,
-        required:true,
-        unique:true
-    },
+   
     isActive:{
         type:Boolean,
         default:true
