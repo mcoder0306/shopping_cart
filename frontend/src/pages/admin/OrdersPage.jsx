@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useOutletContext, useNavigate } from 'react-router-dom';
 import FilterBar from '../../components/admin/FilterBar';
 import { Oval } from 'react-loader-spinner';
@@ -6,7 +6,6 @@ import Table from '../../components/admin/Table';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import Pagination from '../../components/admin/Pagination';
-
 
 function OrdersPage() {
     const navigate = useNavigate();
@@ -16,22 +15,27 @@ function OrdersPage() {
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [statusFilter, setStatusFilter] = useState("");
 
-    const orders = dashboardData?.orders || [];
+    const orders = useMemo(() => dashboardData?.orders || [], [dashboardData]);
 
-    const filteredOrders = orders.filter(o => {
-        const matchesSearch = o.orderId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            o._id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            o.user?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+    const filteredOrders = useMemo(() => {
+        return orders.filter(o => {
+            const matchesSearch =
+                (o.orderId && String(o.orderId).toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (o._id && String(o._id).toLowerCase().includes(searchTerm.toLowerCase())) ||
+                (o.user?.name && String(o.user.name).toLowerCase().includes(searchTerm.toLowerCase()));
 
-        const matchesStatus = statusFilter === "" || o.orderStatus === statusFilter;
+            const matchesStatus = statusFilter === "" || o.orderStatus === statusFilter;
 
-        return matchesSearch && matchesStatus;
-    });
+            return matchesSearch && matchesStatus;
+        });
+    }, [orders, searchTerm, statusFilter]);
 
     // Pagination Logic
     const indexOfLastItem = currentPage * itemsPerPage;
     const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentItems = [...filteredOrders].reverse().slice(indexOfFirstItem, indexOfLastItem);
+    const currentItems = useMemo(() => {
+        return [...filteredOrders].reverse().slice(indexOfFirstItem, indexOfLastItem);
+    }, [filteredOrders, indexOfFirstItem, indexOfLastItem]);
 
     const handleSearch = (term) => {
         setSearchTerm(term);
@@ -48,8 +52,16 @@ function OrdersPage() {
         { label: 'Actions', align: 'center' }
     ];
 
+    if (isLoading) {
+        return (
+            <div className="flex justify-center py-20 min-h-[400px] items-center">
+                <Oval height={60} width={60} color="#6366f1" secondaryColor="#6366f133" />
+            </div>
+        );
+    }
+
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-6 animate-fade-in text-left">
             <FilterBar
                 title="Manage Orders"
                 onSearch={handleSearch}
@@ -70,69 +82,69 @@ function OrdersPage() {
                 ]}
             />
 
-            {isLoading ? (
-                <div className="flex justify-center py-20">
-                    <Oval height={60} width={60} color="#6366f1" secondaryColor="#6366f133" />
-                </div>
-            ) : (
-                <>
-                    <Table headers={headers}>
-                        {currentItems.map((order) => (
-                            <tr key={order._id} className="hover:bg-white/03 transition-colors group">
-                                <td className="px-8 py-4">
-                                    <span className="text-white font-bold tracking-widest text-xs">{order.orderId || ""}</span>
-                                </td>
-                                <td className="px-8 py-4">
-                                    <div className="flex flex-col min-w-0">
-                                        <span className="text-slate-200 font-bold text-sm truncate max-w-[120px] sm:max-w-[180px]">{order.user?.name || 'Guest User'}</span>
-                                        {order.shippingAddress && (
-                                            <span className="text-slate-500 text-[10px] uppercase truncate max-w-[120px] sm:max-w-[180px]">{order.shippingAddress.city}</span>
-                                        )}
-                                    </div>
-                                </td>
-                                <td className="px-8 py-4 text-center text-slate-400 text-sm">
-                                    {new Date(order.createdAt).toLocaleDateString()}
-                                </td>
-                                <td className="px-8 py-4 text-center">
-                                    <span className="text-white font-black text-sm">{order.items?.length || 0}</span>
-                                </td>
-                                <td className="px-8 py-4 text-center">
-                                    <span className={`text-[10px] uppercase font-black px-3 py-1 rounded-lg border tracking-wider
-                                    ${order.orderStatus === 'completed' ? 'border-emerald-500/30 text-emerald-500 bg-emerald-500/05' :
-                                            order.orderStatus === 'draft' ? 'border-amber-500/30 text-amber-500 bg-amber-500/05' :
-                                                'border-blue-500/30 text-blue-500 bg-blue-500/05'}`}
-                                    >
-                                        {order.orderStatus}
+            <div className="animate-slide-up">
+                <Table headers={headers}>
+                    {currentItems.map((order) => (
+                        <tr key={order._id} className="hover:bg-white/03 transition-colors group">
+                            <td className="px-8 py-4">
+                                <span className="text-white font-bold tracking-widest text-xs">{order.orderId || order._id.slice(-8).toUpperCase()}</span>
+                            </td>
+                            <td className="px-8 py-4 text-left">
+                                <div className="flex flex-col min-w-0">
+                                    <span className="text-slate-200 font-bold text-sm truncate max-w-[120px] sm:max-w-[180px]">
+                                        {order.user?.name || 'Guest User'}
                                     </span>
-                                </td>
-                                <td className="px-8 py-4 text-right">
-                                    <span className="text-white font-black text-sm">${order.total?.toFixed(2)}</span>
-                                </td>
-                                <td className="px-8 py-4">
-                                    <div className="flex justify-center items-center">
-                                        <button
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                navigate(`/admin/orders/${order._id}`);
-                                            }}
-                                            className="w-10 h-10 rounded-xl glass border border-white/05 flex items-center justify-center text-slate-400 hover:text-indigo-400 hover:border-indigo-500/20 transition-all group"
-                                            title="View Order Details"
-                                        >
-                                            <FontAwesomeIcon icon={faEye} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                        {filteredOrders.length === 0 && (
-                            <tr>
-                                <td colSpan="6" className="px-8 py-12 text-center text-slate-400">
-                                    No orders found matching your search.
-                                </td>
-                            </tr>
-                        )}
-                    </Table>
+                                    {order.shippingAddress?.city && (
+                                        <span className="text-slate-500 text-[10px] uppercase font-black tracking-widest truncate">
+                                            {order.shippingAddress.city}
+                                        </span>
+                                    )}
+                                </div>
+                            </td>
+                            <td className="px-8 py-4 text-center text-slate-400 text-sm">
+                                {new Date(order.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="px-8 py-4 text-center">
+                                <span className="text-white font-black text-sm">{order.items?.length || 0}</span>
+                            </td>
+                            <td className="px-8 py-4 text-center">
+                                <span className={`text-[10px] uppercase font-black px-3 py-1 rounded-lg border tracking-widest
+                                ${order.orderStatus === 'completed' ? 'border-emerald-500/30 text-emerald-500 bg-emerald-500/05' :
+                                        order.orderStatus === 'draft' ? 'border-amber-500/30 text-amber-500 bg-amber-500/05' :
+                                            'border-blue-500/30 text-blue-500 bg-blue-500/05'}`}
+                                >
+                                    {order.orderStatus}
+                                </span>
+                            </td>
+                            <td className="px-8 py-4 text-right">
+                                <span className="text-white font-black text-sm">${order.total?.toFixed(2)}</span>
+                            </td>
+                            <td className="px-8 py-4">
+                                <div className="flex justify-center items-center">
+                                    <button
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            navigate(`/admin/orders/${order._id}`);
+                                        }}
+                                        className="w-10 h-10 rounded-xl glass border border-white/05 flex items-center justify-center text-slate-400 hover:text-white hover:bg-indigo-600 hover:border-transparent transition-all group"
+                                        title="View Order Details"
+                                    >
+                                        <FontAwesomeIcon icon={faEye} />
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                    {filteredOrders.length === 0 && (
+                        <tr>
+                            <td colSpan={headers.length} className="px-8 py-12 text-center text-slate-400 font-medium italic">
+                                No orders found.
+                            </td>
+                        </tr>
+                    )}
+                </Table>
 
+                <div className="mt-6">
                     <Pagination
                         currentPage={currentPage}
                         totalItems={filteredOrders.length}
@@ -143,8 +155,8 @@ function OrdersPage() {
                             setCurrentPage(1);
                         }}
                     />
-                </>
-            )}
+                </div>
+            </div>
         </div>
     );
 }

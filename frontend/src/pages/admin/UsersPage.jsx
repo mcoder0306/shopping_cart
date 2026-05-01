@@ -7,7 +7,7 @@ import { Oval } from 'react-loader-spinner';
 import Pagination from '../../components/admin/Pagination';
 import PopUp from '../../components/user/Popup';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEye } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faEye } from '@fortawesome/free-solid-svg-icons';
 import { toast } from 'react-toastify';
 
 function UsersPage() {
@@ -124,14 +124,38 @@ function UsersPage() {
                                     </label>
                                 </td>
                                 <td className="px-8 py-4 text-right">
-                                    <button
-                                        onClick={() => setPopup({ type: 'viewDetails', data: user })}
-                                        className="h-9 px-4 rounded-xl glass border border-white/05 text-slate-400 hover:text-white hover:bg-indigo-600 transition-all flex items-center gap-2 group/btn ml-auto"
-                                    >
-                                        <FontAwesomeIcon icon={faEye} className="text-xs" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest">Details</span>
-                                    </button>
+                                    <div className="flex items-center justify-end gap-2">
+                                        <button
+                                            // onClick={() => setPopup({ type: "addEditProduct", data: product._id })}
+                                            className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-emerald-600 transition-all flex items-center justify-center"
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} className="text-xs" />
+                                        </button>
+                                        <button
+                                            onClick={() => setPopup({ type: 'viewDetails', data: user })}
+                                            className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-rose-600 transition-all flex items-center justify-center"
+                                        >
+                                            <FontAwesomeIcon icon={faEye} className="text-xs" />
+                                        </button>
+                                    </div>
                                 </td>
+                                {/* <td className="px-8 py-4 text-right">
+
+                                    <div className='flex'>
+                                        <button
+                                            onClick={() => setPopup({ type: 'viewDetails', data: user })}
+                                            className="h-9 px-3 rounded-xl glass border border-white/05 text-slate-400 hover:text-white hover:bg-indigo-600 transition-all flex items-center gap-2 group/btn ml-auto"
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} className="text-xs" />
+                                        </button>
+                                        <button
+                                            onClick={() => setPopup({ type: 'viewDetails', data: user })}
+                                            className="h-9 px-4 rounded-xl glass border border-white/05 text-slate-400 hover:text-white hover:bg-indigo-600 transition-all flex items-center gap-2 group/btn ml-auto"
+                                        >
+                                            <FontAwesomeIcon icon={faEye} className="text-xs" />
+                                        </button>
+                                    </div>
+                                </td> */}
                             </tr>
                         )) : (
                             <tr>

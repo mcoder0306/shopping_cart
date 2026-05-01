@@ -17,18 +17,18 @@ const getData = async (userId) => {
     if (!categories) {
         return { status: 500, message: "something went wrong in getting categories" }
     }
-    const products = await Product.find().populate("category")
+    const products = await Product.find().populate("category").sort({ createdAt: -1 })
     if (!products) {
         return { status: 500, message: "something went wrong in getting products" }
     }
-    const orders = await Cart.find().populate('items.product').populate('user');
+    const orders = await Cart.find().populate('items.product').populate('user').sort({ createdAt: -1 });
     if (!orders) {
         return { status: 500, message: "something went wrong in getting orders" }
     }
     const totalRevenue = orders.reduce((total, order) => {
         return total += order.total
     }, 0)
-    const users = await User.find({ isAdmin: false })
+    const users = await User.find({ isAdmin: false }).sort({ createdAt: -1 })
     return {
         status: 200, message: "dashboard data", data: {
             catcount: categories.length,

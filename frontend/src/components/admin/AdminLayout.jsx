@@ -39,7 +39,7 @@ function AdminLayout() {
     }
 
     return (
-        <div className="min-h-screen bg-[#060b14] flex overflow-x-hidden">
+        <div className="h-screen bg-[#060b14] flex overflow-hidden">
             {/* Sidebar Overlay (Mobile) */}
             {isMobileMenuOpen && (
                 <div
@@ -52,18 +52,17 @@ function AdminLayout() {
             <Sidebar isOpen={isMobileMenuOpen} onClose={() => setIsMobileMenuOpen(false)} />
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-w-0 min-h-screen transition-all duration-300">
+            <div className="flex-1 flex flex-col min-w-0 h-full transition-all duration-300 overflow-hidden">
                 <Header setIsMobileMenuOpen={setIsMobileMenuOpen} />
 
-                <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden flex flex-col min-w-0 w-full">
-                    <div className="max-w-7xl mx-auto h-full animate-fade-in flex flex-col min-w-0 w-full">
+                <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto flex flex-col min-w-0 w-full custom-scrollbar">
+                    <div className="max-w-7xl mx-auto w-full flex flex-col min-w-0 flex-1">
                         <div className="flex-1 min-w-0 w-full">
                             <Outlet context={{ dashboardData, isLoading, refreshDashboard: fetchDashboardData }} />
                         </div>
                     </div>
                 </main>
-
-                <Footer />
+                {/* <Footer /> */}
             </div>
         </div>
     );

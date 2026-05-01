@@ -3,36 +3,54 @@ import { useForm } from 'react-hook-form'
 import { useOutletContext } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import { api } from '../../utils/api'
+import FormField from '../../components/admin/FormField'
 
 function ProductForm({ popup, setPopup, setRefresh }) {
-    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm()
+    const { register, handleSubmit, formState: { errors }, reset, watch, setValue } = useForm()
     const { dashboardData } = useOutletContext()
     const categories = dashboardData?.categories || []
+    const [config, setConfig] = useState(null)
+    const [isLoadingConfig, setIsLoadingConfig] = useState(true)
     const [preview, setPreview] = useState(null)
+
     const selectedImage = watch("image")
 
+    // Fetch configuration for the product module
+    useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                const res = await api.get("/admin-config/products")
+                setConfig(res.data)
+            } catch (err) {
+                console.error("Failed to load product config", err)
+                toast.error("Failed to load form configuration")
+            } finally {
+                setIsLoadingConfig(false)
+            }
+        }
+        fetchConfig()
+    }, [])
+
+    // Pre-fill form when editing
     useEffect(() => {
         if (popup.data && dashboardData) {
             const product = dashboardData.products.find(p => p._id === popup.data)
             if (product) {
-                reset({
-                    title: product.title,
-                    description: product.description,
-                    price: product.price,
-                    stock: product.stock,
-                    category: product.category?._id || ''
-                })
+                reset(product)
+                // Handle complex fields like category (if it's an object, we want just the ID)
+                if (product.category && typeof product.category === 'object') {
+                    setValue('category', product.category._id)
+                }
                 if (product.image) {
                     setPreview(`http://localhost:3000/${product.image.replace('uploads/', '')}`)
                 }
-            } else {
-                toast.error("Product not found in local data")
             }
         }
-    }, [popup.data, reset, dashboardData])
+    }, [popup.data, reset, dashboardData, setValue])
 
+    // Handle image preview
     useEffect(() => {
-        if (selectedImage && selectedImage[0]) {
+        if (selectedImage && selectedImage[0] instanceof File) {
             const objectUrl = URL.createObjectURL(selectedImage[0])
             setPreview(objectUrl)
             return () => URL.revokeObjectURL(objectUrl)
@@ -42,22 +60,21 @@ function ProductForm({ popup, setPopup, setRefresh }) {
     const submitHandler = async (data) => {
         try {
             const formData = new FormData()
-            formData.append('title', data.title)
-            formData.append('description', data.description)
-            formData.append('price', data.price)
-            formData.append('stock', data.stock)
-            formData.append('category', data.category)
-            if (data.image && data.image[0]) {
-                formData.append('image', data.image[0])
-            }
+            Object.keys(data).forEach(key => {
+                if (data[key] instanceof FileList) {
+                    if (data[key][0]) formData.append(key, data[key][0])
+                } else if (data[key] !== null && data[key] !== undefined) {
+                    formData.append(key, data[key])
+                }
+            })
 
             let res;
             if (popup.data) {
-                res = await api.put(`/products/updateProduct/${popup.data}`, formData, {
+                res = await api.put(`/admin/product/${popup.data}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 })
             } else {
-                res = await api.post('/products/addProduct', formData, {
+                res = await api.post('/admin/product', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 })
             }
@@ -72,128 +89,44 @@ function ProductForm({ popup, setPopup, setRefresh }) {
         }
     }
 
+    if (isLoadingConfig) {
+        return <div className="p-10 text-white text-center">Loading Configuration...</div>
+    }
+
     return (
         <div className='glass rounded-3xl p-6 sm:p-8 md:p-10 border border-white/05 animate-slide-up'>
-            <h1 className='text-xl md:text-2xl font-black text-white text-center mb-6 uppercase tracking-tight'>{popup.data ? "Edit" : "Add"} Product</h1>
+            <h1 className='text-xl md:text-2xl font-black text-white text-center mb-6 uppercase tracking-tight'>
+                {popup.data ? "Edit" : "Add"} {config?.label || "Product"}
+            </h1>
             <form onSubmit={handleSubmit(submitHandler)} className='flex flex-col gap-6'>
 
-                {/* Title */}
-                <div className='flex flex-col gap-2'>
-                    <label htmlFor="title" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
-                        Title
-                    </label>
-                    <input
-                        type="text"
-                        id="title"
-                        placeholder='Enter Product title'
-                        className='premium-input'
-                        {...register("title", { required: "title is required" })}
-                    />
-                    {errors.title && <p className='text-red-400 text-xs font-semibold'>{errors.title.message}</p>}
-                </div>
-
-                {/* Description */}
-                <div className='flex flex-col gap-2'>
-                    <label htmlFor="description" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
-                        Description
-                    </label>
-                    <textarea
-                        id="description"
-                        placeholder='Enter Product description'
-                        className='premium-input min-h-[100px] py-3'
-                        {...register("description", { required: "description is required" })}
-                    />
-                    {errors.description && <p className='text-red-400 text-xs font-semibold'>{errors.description.message}</p>}
-                </div>
-
-                {/* Price and Stock Grid */}
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-                    <div className='flex flex-col gap-2'>
-                        <label htmlFor="price" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
-                            Price
-                        </label>
-                        <input
-                            type="number"
-                            id="price"
-                            min={0}
-                            step={0.01}
-                            placeholder='Enter Product Price'
-                            className='premium-input w-full'
-                            {...register("price", {
-                                valueAsNumber: true,
-                                required: "Price is required",
-                                min: { value: 0, message: "Price must be positive" },
-                                validate: (value) =>
-                                    value > 0 || "Price can not be 0 or less"
-                            })}
-                        />
-                        {errors.price && <p className='text-red-400 text-xs font-semibold'>{errors.price.message}</p>}
-                    </div>
+                    {config?.fields?.map(field => {
+                        const isEdit = !!popup.data
+                        if ((!isEdit && field.showInCreate === false) || (isEdit && field.showInEdit === false)) return null;
 
-                    <div className='flex flex-col gap-2'>
-                        <label htmlFor="stock" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
-                            Stock
-                        </label>
-                        <input
-                            type="number"
-                            id="stock"
-                            min={0}
-                            placeholder='Enter Product stock'
-                            className='premium-input w-full'
-                            {...register("stock", {
-                                required: "stock is required",
-                                min: { value: 1, message: "Stock must be at least 1" },
-                                valueAsNumber: true,
-                                validate: (value) =>
-                                    Number.isInteger(value) || "Stock must be an integer"
-                            })}
-                        />
-                        {errors.stock && <p className='text-red-400 text-xs font-semibold'>{errors.stock.message}</p>}
-                    </div>
+                        // Inject dynamic options for reference fields if needed
+                        let fieldConfig = { ...field };
+                        if (field.name === 'category' && categories.length > 0) {
+                            fieldConfig.options = categories.map(c => ({ label: c.title, value: c._id }));
+                        }
+
+                        return (
+                            <FormField
+                                key={field.name}
+                                field={fieldConfig}
+                                register={register}
+                                errors={errors}
+                                preview={field.type === 'file' ? preview : null}
+                                onFileChange={field.type === 'file' ? (e) => {
+                                    // Custom file change handled by register normally, 
+                                    // but preview logic is in our useEffect
+                                } : null}
+                            />
+                        )
+                    })}
                 </div>
 
-                {/* Image and Category Grid */}
-                <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-
-                    {/* Image Field */}
-                    <div className='flex flex-col gap-2'>
-                        <label htmlFor="image" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
-                            Image
-                        </label>
-                        <input
-                            type="file"
-                            id="image"
-                            className='premium-input file:hidden pt-3'
-                            {...register("image", { required: !popup.data ? "image is required" : false })}
-                        />
-                        {preview && (
-                            <div className="mt-2 w-full h-32 rounded-xl border border-white/10 overflow-hidden bg-white/05 flex items-center justify-center">
-                                <img src={preview} alt="Preview" className="h-full w-full object-contain" />
-                            </div>
-                        )}
-                        {errors.image && <p className='text-red-400 text-xs font-semibold'>{errors.image.message}</p>}
-                    </div>
-
-                    {/* Category Field */}
-                    <div className='flex flex-col gap-2'>
-                        <label htmlFor="category" className='text-xs font-black text-slate-400 uppercase tracking-widest'>
-                            Category
-                        </label>
-                        <select
-                            id="category"
-                            className='premium-input w-full bg-transparent'
-                            {...register("category", { required: "category is required" })}
-                        >
-                            <option value="" className="bg-slate-900">Select Category</option>
-                            {categories.map(cat => (
-                                <option key={cat._id} value={cat._id} className="bg-slate-900">{cat.title}</option>
-                            ))}
-                        </select>
-                        {errors.category && <p className='text-red-400 text-xs font-semibold'>{errors.category.message}</p>}
-                    </div>
-                </div>
-
-                {/* Submit Button */}
                 <button
                     type='submit'
                     className='btn-premium w-full py-4 rounded-2xl font-extrabold text-base flex items-center justify-center gap-3 group shadow-xl shadow-indigo-600/20 mt-2'

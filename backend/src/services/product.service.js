@@ -7,7 +7,7 @@ const productCreate = async (data) => {
     const { title, description, price, stock, category } = data.info;
     const image = data.image?.path
     const cat = await Category.findById(category)
-    if (!cat) {
+    if (!cat || cat.isActive === false) {
         return { status: 404, message: "category not found!!" }
     }
     if (!title && !description && !category && !stock && !price && !image) {
@@ -110,8 +110,8 @@ const productsGet = async (data) => {
             $lte: maxprice
         }
     }
-    const getproducts = await Product.find(filter).populate({ path: 'category', match: { isActive: true } })
-    const products = getproducts.filter(p => p.category);
+    const getproducts = await Product.find({ ...filter, isActive: { $ne: false } }).populate('category');
+    const products = getproducts.filter(p => !p.category || p.category.isActive !== false);
     if (products.length === 0) {
         return { status: 200, message: "no product found!!", products: products }
     }

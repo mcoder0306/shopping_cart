@@ -58,10 +58,11 @@ function AdminDashboard() {
                     { label: 'Customer', align: 'left' },
                     { label: 'Date', align: 'center' },
                     { label: 'Status', align: 'center' },
+                    { label: 'Payment', align: 'center' },
                     { label: 'Total', align: 'right' },
                     { label: 'Actions', align: 'center' }
                 ]}>
-                    {[...(data.orders || [])].reverse().slice(0, 10).map((order) => (
+                    {(data.orders || []).slice(0, 10).map((order) => (
                         <tr key={order._id} className="hover:bg-white/03 transition-colors">
                             <td className="px-8 py-4 text-white font-bold text-sm">{order.orderId || ""}</td>
                             <td className="px-8 py-4 text-slate-300 text-sm">{order?.user?.name || 'Unknown'}</td>
@@ -74,6 +75,23 @@ function AdminDashboard() {
                                 >
                                     {order.orderStatus}
                                 </span>
+                            </td>
+                            <td className="px-8 py-4 text-center">
+                                {(() => {
+                                    const colors = {
+                                        cod: 'border-amber-500/30 text-amber-500 bg-amber-500/05',
+                                        upi: 'border-indigo-500/30 text-indigo-500 bg-indigo-500/05',
+                                        card: 'border-emerald-500/30 text-emerald-500 bg-emerald-500/05',
+                                        default: 'border-slate-500/30 text-slate-500 bg-slate-500/05'
+                                    };
+                                    const method = (order.paymentMethod || '').toLowerCase();
+                                    const badgeClass = colors[method] || colors.default;
+                                    return (
+                                        <span className={`text-[10px] uppercase font-black px-2.5 py-1 rounded-lg border tracking-wider ${badgeClass}`}>
+                                            {order.paymentMethod || 'Pending'}
+                                        </span>
+                                    );
+                                })()}
                             </td>
                             <td className="px-8 py-4 text-right text-white font-black text-sm">${order.total?.toFixed(2)}</td>
                             <td className="px-8 py-4">

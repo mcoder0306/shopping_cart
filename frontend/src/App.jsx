@@ -32,6 +32,7 @@ import AdminOrderDetail from './pages/admin/AdminOrderDetail.jsx'
 import CategoriesPage from './pages/admin/CategoriesPage.jsx'
 import UsersPage from './pages/admin/UsersPage.jsx'
 import AdminProfile from './pages/admin/AdminProfile.jsx'
+import AdminModulePage from './pages/admin/AdminModulePage.jsx'
 
 
 function App() {
@@ -80,11 +81,12 @@ function App() {
             {/* Admin Routes */}
             <Route path='/admin' element={<AdminLayout />}>
               <Route path='dashboard' element={<AdminDashboard />} />
-              <Route path='products' element={<ProductsPage />} />
+              <Route path=':module' element={<AdminModulePage />} />
+              {/* <Route path='products' element={<ProductsPage />} />
               <Route path='orders' element={<OrdersPage />} />
-              <Route path='orders/:id' element={<AdminOrderDetail />} />
               <Route path='categories' element={<CategoriesPage />} />
-              <Route path='users' element={<UsersPage />} />
+              <Route path='users' element={<UsersPage />} /> */}
+              <Route path='orders/:id' element={<AdminOrderDetail />} />
               <Route path='profile' element={<AdminProfile />} />
             </Route>
 

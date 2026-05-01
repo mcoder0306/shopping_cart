@@ -241,18 +241,20 @@ const getCords = async ({ orderId }) => {
 }
 
 const generateOrderId = async () => {
-    const lastOrder = await Cart.findOne({ orderId: { $ne: null } })
-        .sort({ createdAt: -1 })
+    const cartsWithIds = await Cart.find({ orderId: { $ne: null } })
         .select('orderId')
         .lean();
 
-    let nextNum = 1;
-    if (lastOrder && lastOrder.orderId) {
-        const match = lastOrder.orderId.match(/\d+/);
+    let maxNum = 0;
+    cartsWithIds.forEach(cart => {
+        const match = cart.orderId.match(/\d+/);
         if (match) {
-            nextNum = parseInt(match[0], 10) + 1;
+            const num = parseInt(match[0], 10);
+            if (num > maxNum) maxNum = num;
         }
-    }
+    });
+
+    const nextNum = maxNum + 1;
     return `#ORD${nextNum.toString().padStart(3, '0')}`;
 };
 

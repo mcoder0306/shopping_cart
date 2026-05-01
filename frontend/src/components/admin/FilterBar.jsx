@@ -57,30 +57,33 @@ function CustomSelect({ filter }) {
 
 function FilterBar({ onSearch, title, actionButton, filters = [] }) {
     return (
-        <div className="w-full min-w-0">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 glass border border-white/05 px-4 py-3 rounded-2xl w-full min-w-0">
-                {/* Title + Search */}
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                    {title && <h2 className="text-base font-bold text-white whitespace-nowrap shrink-0">{title}</h2>}
+        <div className="w-full min-w-0 relative z-30">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 glass border border-white/05 px-5 py-4 rounded-3xl w-full relative z-30">
+                {/* Search & Title */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1 min-w-0">
+                    {title && <h2 className="text-lg font-black text-white whitespace-nowrap shrink-0 tracking-tight">{title}</h2>}
 
-                    <div className="relative flex-1 max-w-sm min-w-[140px]">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                            <FontAwesomeIcon icon={faSearch} className="text-xs" />
+                    <div className="relative flex-1 max-w-md min-w-[200px]">
+                        <div className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500">
+                            <FontAwesomeIcon icon={faSearch} className="text-sm" />
                         </div>
                         <input
                             type="text"
-                            placeholder={`Search...`}
+                            placeholder={`Search ${title?.replace('Manage ', '')}...`}
                             onChange={(e) => onSearch && onSearch(e.target.value)}
-                            className="w-full bg-white/05 border border-white/10 text-white text-xs rounded-lg py-2 pl-8 pr-3 focus:outline-none focus:border-indigo-500/50 transition-all placeholder:text-slate-500"
+                            className="w-full bg-white/03 border border-white/08 text-white text-sm rounded-xl py-2.5 pl-10 pr-4 focus:outline-none focus:border-indigo-500/50 focus:bg-white/05 transition-all placeholder:text-slate-600 shadow-inner"
                         />
                     </div>
                 </div>
 
                 {/* Filters & Actions */}
-                <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                    {filters.map((filter, index) => (
-                        <CustomSelect key={index} filter={filter} />
-                    ))}
+                <div className="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap lg:justify-end">
+                    <div className="flex items-center gap-2 flex-wrap">
+                        {filters.map((filter, index) => (
+                            <CustomSelect key={index} filter={filter} />
+                        ))}
+                    </div>
+                    <div className="h-8 w-px bg-white/05 mx-1 hidden sm:block" />
                     {actionButton}
                 </div>
             </div>
