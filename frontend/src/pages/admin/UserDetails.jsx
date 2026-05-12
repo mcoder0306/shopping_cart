@@ -9,7 +9,6 @@ function UserDetails({ user }) {
         { icon: faEnvelope, label: 'Email Address', value: user.email },
         { icon: faPhone, label: 'Phone Number', value: user.phone || 'Not provided' },
         { icon: faShieldAlt, label: 'Account Type', value: user.isAdmin ? 'Administrator' : 'Customer', color: user.isAdmin ? 'text-indigo-400' : 'text-emerald-400' },
-        { icon: faIdBadge, label: 'Account ID', value: user._id },
         { icon: faCalendarAlt, label: 'Joined On', value: new Date(user.createdAt).toLocaleDateString(undefined, { dateStyle: 'long' }) },
     ];
 

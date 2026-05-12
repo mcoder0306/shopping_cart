@@ -53,7 +53,7 @@ const refreshToken = async (req, res) => {
     try {
         const token = req.cookies.refreshToken
         if(!token){
-            return errorResponse(res,400,"no refresh token token!!")
+            return errorResponse(res,401,"no refresh token token!!")
         }        
         const response = await refreshAccessToken(token)
         if (response.status === 200) {

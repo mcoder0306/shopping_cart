@@ -103,7 +103,7 @@ const refreshAccessToken = async (token) => {
     }
 
     if (foundUser.refreshToken !== token) {
-        return { status: 403, message: "Refresh token mismatch please refresh the page!!" };
+        return { status: 401, message: "Invalid session. Please login again." };
     }
 
     const { accessToken, refreshToken } = generateTokens(foundUser);

@@ -5,20 +5,22 @@ import { faChartLine, faBox, faTags, faBagShopping, faUsers, faXmark } from '@fo
 import { api } from '../../utils/api';
 import { iconMap } from '../../utils/iconMap';
 
-const navItems = [
-    { label: 'Dashboard', path: '/admin/dashboard', icon: faChartLine },
-    { label: 'Products', path: '/admin/products', icon: faBox },
-    { label: 'Categories', path: '/admin/categories', icon: faTags },
-    { label: 'Orders', path: '/admin/orders', icon: faBagShopping },
-    { label: 'Users', path: '/admin/users', icon: faUsers },
-];
-
 function Sidebar({ isOpen, onClose }) {
     const [menus, setMenus] = useState([]);
     useEffect(() => {
         const fetchAdminConfigs = async () => {
-            const res = await api.get("/admin-config")
-            setMenus(res.data)
+            try {
+                const res = await api.get("/registry/getSidebarModules");
+                // Map backend keys to frontend expected keys
+                const mappedMenus = res.data.data.map(m => ({
+                    name: m.modelName,
+                    label: m.sidebarLabel,
+                    icon: m.icon // Assuming backend might provide this, or fallback in UI
+                }));
+                setMenus(mappedMenus);
+            } catch (error) {
+                console.error("Failed to fetch sidebar modules:", error);
+            }
         }
         fetchAdminConfigs()
     }, []);
@@ -58,7 +60,7 @@ function Sidebar({ isOpen, onClose }) {
                 {/* <p className="px-4 text-[10px] font-black uppercase tracking-widest text-slate-500 mb-2">Modules</p> */}
 
                 {menus
-                    .filter(item => item.name !== 'dashboard')
+                    .filter(item => item.name.toLowerCase() !== 'dashboard')
                     .map((item) => (
                         <NavLink
                             key={item.name}

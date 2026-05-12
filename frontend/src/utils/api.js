@@ -1,4 +1,6 @@
 import axios from "axios"
+import { store } from "../store/store"
+import { logoutUser } from "../features/AuthSlice"
 
 export const api = axios.create({
     baseURL: "http://localhost:3000/api/v1",
@@ -46,8 +48,16 @@ api.interceptors.response.use(
                 // If successful, retry the original request
                 return api(originalRequest);
             } catch (refreshError) {
-                // If refresh fails, you might want to logout the user or clear storage
-                // but for now, just reject to avoid infinite loops or confusing errors
+                // If refresh fails (token expired, missing, or mismatched), 
+                // clear storage and update Redux state immediately so the UI (Navbar) updates
+                localStorage.removeItem("user");
+                store.dispatch(logoutUser());
+                
+                // If it's a "no refresh token" error on page load, mark it as silent
+                if (refreshError.response?.data?.message === "no refresh token token!!") {
+                    refreshError.isSilent = true;
+                }
+                
                 return Promise.reject(refreshError);
             }
         }

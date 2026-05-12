@@ -32,11 +32,13 @@ function Favourites() {
                     setFavourites(favouriteProducts)
                 }
             } catch (error) {
-                const msg = error.response?.data?.message || 'something went wrong. Please try again.'
-                toast.error(msg, {
-                    theme: 'dark',
-                    autoClose: 3000,
-                })
+                if (!error.isSilent) {
+                    const msg = error.response?.data?.message || 'something went wrong. Please try again.'
+                    toast.error(msg, {
+                        theme: 'dark',
+                        autoClose: 3000,
+                    })
+                }
             } finally {
                 setIsLoading(false)
             }

@@ -177,7 +177,7 @@ function AdminOrderDetail() {
                 {/* Sidebar Info */}
                 <div className="flex flex-col gap-8">
                     {/* User Card */}
-                    <div className="glass rounded-4xl border border-white/05 overflow-hidden shadow-2xl shadow-black/50 sticky top-28">
+                    <div className="glass rounded-4xl border border-white/05 overflow-hidden shadow-2xl shadow-black/50">
                         <div className="p-8 border-b border-white/05 bg-white/02">
                             <h3 className="text-white font-black text-xl tracking-tight flex items-center gap-3">
                                 <FontAwesomeIcon icon={faUserMd} className="text-indigo-500" />

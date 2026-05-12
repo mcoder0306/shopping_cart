@@ -1,6 +1,4 @@
 import "dotenv/config";
-import { registerModels } from "./models/index.js";
-await registerModels();
 
 import express from "express"
 const PORT = process.env.PORT || 3000
@@ -43,8 +41,8 @@ import dashboardRouter from "./routes/dashboard.route.js"
 import authRouter from "./routes/auth.route.js"
 import favouriteRouter from "./routes/favourite.route.js"
 import paymentRouter from "./routes/payment.route.js"
-import adminConfigRouter from './routes/adminConfig.route.js'
-import adminRouter from './routes/admin.route.js'
+import dynamicRoutes from './routes/dynamic.route.js'
+import registryRoutes from './routes/registry.route.js'
 import { verifyJWT } from "./middlewares/auth.js"
 
 //non auth
@@ -60,5 +58,5 @@ app.use("/api/v1/orders", orderRouter)
 app.use("/api/v1/dashboard", dashboardRouter)
 app.use("/api/v1/favourites", favouriteRouter)
 app.use("/api/v1/payment", paymentRouter)
-app.use("/api/v1/admin-config", adminConfigRouter);
-app.use("/api/v1/admin", adminRouter);
+app.use("/api/v1/registry", registryRoutes)
+app.use("/api/v1/admin", dynamicRoutes)

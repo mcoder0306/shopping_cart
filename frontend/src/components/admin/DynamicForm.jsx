@@ -79,7 +79,7 @@ function DynamicForm({ config, initialData, onSuccess, module, categories }) {
             <form onSubmit={handleSubmit(onSubmit)} className='flex flex-col gap-6'>
                 <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                     {config.fields
-                        .filter(f => initialData ? f.showInEdit !== false : f.showInCreate !== false)
+                        .filter(f => initialData ? f.visibleInEdit !== false : f.visibleInAdd !== false)
                         .map((field) => {
                             let fieldConfig = { ...field };
                             if (field.name === 'category' && categories) {

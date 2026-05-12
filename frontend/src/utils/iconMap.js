@@ -19,7 +19,7 @@ export const iconMap = {
   faBox,
   faTags,
   faBagShopping,
-  faUsers,
+  faUsers, 
   faNewspaper,
   faPlus,
   faSave,

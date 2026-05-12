@@ -6,7 +6,7 @@ import Table from './Table';
 function DynamicTable({ config, data, onEdit, onDelete, onView, onToggleStatus }) {
     if (!config || !data) return null;
 
-    const tableFields = config.fields.filter(f => f.showInTable === true);
+    const tableFields = config.fields.filter(f => f.visibleInTable === true);
 
     if (tableFields.length === 0) {
         const fallback = config.fields.find(f => f.name === 'title' || f.name === 'name') || config.fields[0];
@@ -175,7 +175,7 @@ function DynamicTable({ config, data, onEdit, onDelete, onView, onToggleStatus }
 
                     {statusField && (
                         <td className="px-8 py-4 text-center">
-                            {config.name === 'users' && item.isAdmin ? (
+                            {config.name === 'User' && item.isAdmin ? (
                                 <div className="flex justify-center">
                                     <div className="w-9 h-5 bg-indigo-600/20 rounded-full border border-indigo-500/20 relative opacity-50 cursor-not-allowed">
                                         <div className="absolute top-[2px] right-[2px] bg-white rounded-full h-4 after:w-4 w-4"></div>
@@ -197,7 +197,7 @@ function DynamicTable({ config, data, onEdit, onDelete, onView, onToggleStatus }
 
                     <td className="px-8 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 text-right">
-                            {(onView && (config.name === 'users' || config.name === 'orders')) && (
+                            {(onView && (config.name === 'User' || config.name === 'Cart')) && (
                                 <button
                                     onClick={() => onView(item)}
                                     className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-indigo-600 transition-all flex items-center justify-center text-right"
@@ -215,7 +215,7 @@ function DynamicTable({ config, data, onEdit, onDelete, onView, onToggleStatus }
                                     >
                                         <FontAwesomeIcon icon={faEdit} className="text-xs" />
                                     </button>
-                                    {!(config.name === 'users' && item.isAdmin) && (
+                                    {!(config.name === 'User' && item.isAdmin) && (
                                         <button
                                             onClick={() => onDelete(item._id)}
                                             className="w-8 h-8 rounded-lg glass border border-white/05 text-slate-400 hover:text-white hover:bg-rose-600 transition-all flex items-center justify-center"

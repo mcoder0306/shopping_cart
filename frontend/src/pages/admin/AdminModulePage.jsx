@@ -29,8 +29,19 @@ function AdminModulePage() {
 
     const fetchConfig = async () => {
         try {
-            const res = await api.get(`/admin-config/${module}`);
-            setConfig(res.data);
+            const res = await api.get(`/registry/getModuleConfig/${module}`);
+            const rawConfig = res.data.data;
+            
+            // Map backend structure to frontend expected structure
+            const mappedConfig = {
+                ...rawConfig,
+                label: rawConfig.sidebarLabel,
+                hideAdd: !rawConfig.actions?.create,
+                readonly: !rawConfig.actions?.edit,
+                name: rawConfig.modelName
+            };
+            
+            setConfig(mappedConfig);
         } catch (err) {
             toast.error("Failed to load module configuration");
         }
@@ -72,7 +83,7 @@ function AdminModulePage() {
 
     const getFilters = () => {
         const filters = [];
-        if (module === 'products' && categories.length > 0) {
+        if (module === 'Product' && categories.length > 0) {
             filters.push({
                 label: 'Category',
                 name: 'category',
@@ -84,7 +95,7 @@ function AdminModulePage() {
                 onChange: (val) => handleFilterChange('category', val)
             });
         }
-        if (module === 'orders') {
+        if (module === 'Cart') {
             filters.push({
                 label: 'Order Status',
                 name: 'orderStatus',
@@ -167,9 +178,9 @@ function AdminModulePage() {
     };
 
     const handleView = (item) => {
-        if (module === 'users') {
+        if (module === 'User') {
             setPopup({ type: "viewUser", data: item });
-        } else if (module === 'orders') {
+        } else if (module === 'Cart') {
             navigate(`/admin/orders/${item._id}`);
         }
     };
